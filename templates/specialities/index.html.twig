@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Centro Clinico Vitalis - Especialidades{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-0">
+
+    <!-- Encabezado de página -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-2">Especialidades</h1>
+            <p class="vitalis-hint mb-0">
+                Cada profesional se asocia a una especialidad, y los pacientes la usan para elegir con quién sacar turno.
+            </p>
+        </div>
+
+        <a class="btn btn-primary d-inline-flex align-items-center gap-2 flex-shrink-0" href="{{ path('specialities.create') }}">
+            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+            Nueva especialidad
+        </a>
+    </div>
+
+    {% if specialities is empty %}
+
+        <!-- Estado vacío -->
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-clipboard2-pulse text-primary display-5 d-block mb-3" aria-hidden="true"></i>
+                <h2 class="h5 mb-2">Todavía no hay especialidades</h2>
+                <p class="vitalis-hint mb-4">
+                    Creá la primera para poder asignarla a los profesionales.
+                </p>
+                <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{{ path('specialities.create') }}">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    Crear la primera
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+
+        <!-- Listado -->
+        <div class="card">
+            <div class="card-header py-3">
+                <h2 class="h6 mb-1">Listado de especialidades</h2>
+                <p class="vitalis-hint mb-0">
+                    {{ specialities|length == 1 ? '1 especialidad registrada' : specialities|length ~ ' especialidades registradas' }}
+                </p>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4 w-100">Nombre</th>
+                            <th class="text-end pe-4 text-nowrap">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for speciality in specialities %}
+                            <tr>
+                                <td class="ps-4 fw-semibold">{{ speciality.name }}</td>
+                                <td class="text-end pe-4">
+                                    <div class="d-inline-flex gap-2">
+
+                                        <a class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                                           href="{{ path('specialities.edit', {id: speciality.id}) }}">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i>
+                                            <span class="d-none d-sm-inline">Editar</span>
+                                        </a>
+
+                                        <form method="post" class="d-inline"
+                                              action="{{ path('specialities.delete', {id: speciality.id}) }}"
+                                              onsubmit="return confirm({{ ('Se va a borrar la especialidad \"' ~ speciality.name ~ '\". Esta acción no se puede deshacer.')|json_encode }});">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-speciality-' ~ speciality.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">
+                                                <i class="bi bi-trash" aria-hidden="true"></i>
+                                                <span class="d-none d-sm-inline">Borrar</span>
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% endif %}
+</div>
+{% endblock %}

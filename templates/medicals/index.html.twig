@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Centro Clinico Vitalis - Personal Medico{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+        
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+            <div>
+                <h1 class="h3 mb-2">Personal Médico</h1>
+                <p class="vitalis-hint mb-0">
+                    Médicos, enfermeros, auxiliares y estudiantes internos del área médica.
+                </p>
+            </div>
+
+            <a class="btn btn-primary d-inline-flex align-items-center gap-2 flex-shrink-0" href="{{ path('medicals.create') }}">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                Nuevo personal médico
+            </a>
+        </div>
+
+        {% if medicalStaff is empty %}
+
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-person-badge text-primary display-5 d-block mb-3" aria-hidden="true"></i>
+                    <h2 class="h5 mb-2">Todavía no hay personal médico</h2>
+                    <p class="vitalis-hint mb-4">
+                        Registrá al primer médico, enfermero, auxiliar o estudiante interno.
+                    </p>
+                    <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{{ path('medicals.create') }}">
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                        Registrar el primero
+                    </a>
+                </div>
+            </div>
+
+        {% else %}
+
+            <div class="card">
+                <div class="card-header py-3">
+                    <h2 class="h6 mb-1">Listado de personal médico</h2>
+                    <p class="vitalis-hint mb-0">
+                        {{ medicalStaff|length == 1 ? '1 registro' : medicalStaff|length ~ ' registros' }}
+                    </p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Usuario</th>
+                                <th class="text-nowrap">Puesto</th>
+                                <th class="text-nowrap">Especialidad</th>
+                                <th class="text-nowrap">Matrícula</th>
+                                <th class="text-nowrap">Estado</th>
+                                <th class="text-end pe-4 text-nowrap">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for staff in medicalStaff %}
+                                {% set confirm = staff.user.isActive()
+                                ? 'Se va a dar de baja a "' ~ staff.user.fullName() ~ '". El legajo se conserva y se puede reactivar.'
+                                : 'Se va a reactivar a "' ~ staff.user.fullName() ~ '".' %}
+
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="fw-semibold d-block">{{ staff.user.fullName() }}</span>
+                                        <span class="vitalis-hint">DNI {{ staff.user.dni() }}</span>
+                                    </td>
+
+                                    <td class="text-nowrap">{{ staff.user.role.name() }}</td>
+
+                                    <td class="text-nowrap">
+                                        {% if staff.speciality is null %}
+                                            <span class="vitalis-hint">—</span>
+                                        {% else %}
+                                            {{ staff.speciality.name() }}
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-nowrap">
+                                        {% if staff.licenseNumber() is null %}
+                                            <span class="vitalis-hint">Sin matrícula</span>
+                                        {% else %}
+                                            {{ staff.licenseNumber() }}
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-nowrap">
+                                        {% if staff.user.isActive() %}
+                                            <span class="badge text-bg-success-subtle text-success-emphasis">Activo</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary-subtle text-secondary-emphasis">Dado de baja</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-end pe-4">
+                                        <div class="d-inline-flex gap-2">
+                                            <a
+                                                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                                                href="{{ path('medicals.edit', {id: staff.id}) }}"
+                                            >
+                                                <i class="bi bi-pencil" aria-hidden="true"></i>
+                                                <span class="d-none d-sm-inline">Editar</span>
+                                            </a>
+                                            
+                                            {% if staff.user.isActive() %}
+                                                <form action="{{ path('medicals.deactivate', {id: staff.id}) }}" method="POST" style="display:inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('status-medicalstaff-' ~ staff.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">Desactivar</button>
+                                                </form>
+                                            {% else %}
+                                                <form action="{{ path('medicals.activate', {id: staff.id}) }}" method="POST">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('status-medicalstaff-' ~ staff.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">Reactivar</button>
+                                                </form>
+                                            {% endif %}
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% endif %}
+    </div>
+{% endblock %}

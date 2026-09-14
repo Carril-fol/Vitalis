@@ -1,0 +1,471 @@
+/* ==========================================================================
+   Vitalis — capa de tema sobre Bootstrap 5.3
+   --------------------------------------------------------------------------
+   Cargar SIEMPRE después de bootstrap.min.css. El orden importa: varias
+   reglas de acá tienen la misma especificidad que las de Bootstrap y ganan
+   solo por venir después.
+
+   Índice
+     1. Tokens
+     2. Puente con Bootstrap
+     3. Base
+     4. Botones
+     5. Formularios
+     6. Superficies y componentes
+     7. Piezas propias (.vitalis-*)
+     8. Layout de autenticación
+   ========================================================================== */
+
+/* Para mejor performance, borrá este @import y poné los <link> de la fuente
+   en el <head> del layout. Si lo dejás, tiene que ser la primera regla. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
+
+
+/* 1. Tokens ================================================================
+   Única fuente de verdad del sistema. Si querés cambiar la identidad de la
+   app entera, se toca acá y en ningún otro lado. */
+
+:root {
+    /* Marca */
+    --v-primary:       #0F766E;
+    --v-primary-dark:  #0B5F58;
+    --v-primary-soft:  #E7F1EF;
+    --v-primary-rgb:   15, 118, 110;
+
+    /* Neutros */
+    --v-ink:           #12231F;
+    --v-muted:         #5C6B68;
+    --v-placeholder:   #9BAAA7;
+    --v-line:          #DCE4E2;
+    --v-surface:       #FFFFFF;
+    --v-bg:            #F3F6F5;
+
+    /* Estados */
+    --v-danger:        #B42318;
+    --v-danger-soft:   #FDF2F2;
+    --v-danger-line:   #F3C9C9;
+    --v-success:       #197A5B;
+    --v-success-soft:  #E9F5F0;
+    --v-warning:       #9A6700;
+    --v-warning-soft:  #FDF6E3;
+
+    /* Forma */
+    --v-radius-sm:     .4rem;
+    --v-radius:        .65rem;
+    --v-radius-lg:     1rem;
+
+    --v-shadow-sm:     0 1px 2px rgba(18, 35, 31, .06);
+    --v-shadow:        0 8px 28px -16px rgba(18, 35, 31, .35);
+    --v-ring:          0 0 0 3px rgba(var(--v-primary-rgb), .15);
+    --v-ring-danger:   0 0 0 3px rgba(180, 35, 24, .14);
+
+    /* Tipografía */
+    --v-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+
+/* 2. Puente con Bootstrap ==================================================
+   Bootstrap 5.3 expone casi todo como custom properties. Redefinirlas acá
+   propaga la marca a los componentes sin tocar el CSS compilado. */
+
+:root {
+    --bs-body-font-family:    var(--v-sans);
+    --bs-body-color:          var(--v-ink);
+    --bs-body-color-rgb:      18, 35, 31;
+    --bs-body-bg:             var(--v-bg);
+    --bs-emphasis-color:      var(--v-ink);
+    --bs-secondary-color:     var(--v-muted);
+    --bs-tertiary-color:      var(--v-placeholder);
+    --bs-border-color:        var(--v-line);
+    --bs-heading-color:       var(--v-ink);
+
+    --bs-primary:             var(--v-primary);
+    --bs-primary-rgb:         var(--v-primary-rgb);
+    --bs-primary-bg-subtle:   var(--v-primary-soft);
+    --bs-primary-border-subtle: #BFDCD7;
+    --bs-primary-text-emphasis: var(--v-primary-dark);
+
+    --bs-link-color-rgb:       var(--v-primary-rgb);
+    --bs-link-hover-color-rgb: 11, 95, 88;
+
+    --bs-border-radius:       var(--v-radius);
+    --bs-border-radius-sm:    var(--v-radius-sm);
+    --bs-border-radius-lg:    var(--v-radius-lg);
+
+    --bs-focus-ring-color:    rgba(var(--v-primary-rgb), .2);
+}
+
+
+/* 3. Base ================================================================== */
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-weight: 600;
+    letter-spacing: -.02em;
+}
+
+a {
+    text-underline-offset: .2em;
+    text-decoration-thickness: 1px;
+}
+
+::selection {
+    background: rgba(var(--v-primary-rgb), .18);
+}
+
+/* Piso de accesibilidad para lo que Bootstrap no cubre. */
+a:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 2px solid var(--v-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+
+/* 4. Botones =============================================================== */
+
+.btn {
+    --bs-btn-font-weight: 600;
+    --bs-btn-border-radius: var(--v-radius);
+}
+
+.btn-primary {
+    --bs-btn-bg:                   var(--v-primary);
+    --bs-btn-border-color:         var(--v-primary);
+    --bs-btn-hover-bg:             var(--v-primary-dark);
+    --bs-btn-hover-border-color:   var(--v-primary-dark);
+    --bs-btn-active-bg:            var(--v-primary-dark);
+    --bs-btn-active-border-color:  var(--v-primary-dark);
+    --bs-btn-disabled-bg:          var(--v-primary);
+    --bs-btn-disabled-border-color: var(--v-primary);
+    --bs-btn-focus-shadow-rgb:     var(--v-primary-rgb);
+}
+
+.btn-outline-primary {
+    --bs-btn-color:                var(--v-primary);
+    --bs-btn-border-color:         #BFDCD7;
+    --bs-btn-hover-bg:             var(--v-primary);
+    --bs-btn-hover-border-color:   var(--v-primary);
+    --bs-btn-active-bg:            var(--v-primary-dark);
+    --bs-btn-active-border-color:  var(--v-primary-dark);
+    --bs-btn-disabled-color:       var(--v-primary);
+    --bs-btn-disabled-border-color: #BFDCD7;
+    --bs-btn-focus-shadow-rgb:     var(--v-primary-rgb);
+}
+
+.btn-link {
+    --bs-btn-color:       var(--v-primary);
+    --bs-btn-hover-color: var(--v-primary-dark);
+    --bs-btn-font-weight: 500;
+}
+
+/* Altura cómoda para acciones principales de formulario. */
+.btn-block-lg {
+    padding-block: .85rem;
+    font-size: 1rem;
+    width: 100%;
+}
+
+
+/* 5. Formularios =========================================================== */
+
+.form-label {
+    font-size: .875rem;
+    font-weight: 500;
+    color: var(--v-muted);
+    margin-bottom: .4rem;
+}
+
+.form-control,
+.form-select {
+    padding: .65rem .9rem;
+    background-color: var(--v-surface);
+    border-color: var(--v-line);
+    border-radius: var(--v-radius);
+    color: var(--v-ink);
+}
+
+.form-control::placeholder {
+    color: var(--v-placeholder);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--v-primary);
+    box-shadow: var(--v-ring);
+}
+
+.form-control.is-invalid:focus,
+.was-validated .form-control:invalid:focus {
+    box-shadow: var(--v-ring-danger);
+}
+
+.form-check-input {
+    border-color: #C3CFCC;
+}
+
+.form-check-input:checked {
+    background-color: var(--v-primary);
+    border-color: var(--v-primary);
+}
+
+.form-check-input:focus {
+    border-color: var(--v-primary);
+    box-shadow: var(--v-ring);
+}
+
+.form-switch .form-check-input:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%230F766E'/%3e%3c/svg%3e");
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--v-ink);
+    box-shadow: 0 0 0 100px var(--v-surface) inset;
+}
+
+
+.card {
+    --bs-card-bg: var(--v-surface);
+    --bs-card-border-color: var(--v-line);
+    --bs-card-border-radius: var(--v-radius-lg);
+    --bs-card-inner-border-radius: calc(var(--v-radius-lg) - 1px);
+    --bs-card-spacer-x: 1.5rem;
+    --bs-card-spacer-y: 1.5rem;
+    box-shadow: var(--v-shadow-sm);
+}
+
+.card-header {
+    --bs-card-cap-bg: var(--v-surface);
+    font-weight: 600;
+}
+
+.modal-content,
+.offcanvas {
+    background-color: var(--v-surface);
+}
+
+.dropdown-menu {
+    --bs-dropdown-bg: var(--v-surface);
+    --bs-dropdown-border-color: var(--v-line);
+    --bs-dropdown-border-radius: var(--v-radius);
+    --bs-dropdown-link-active-bg: var(--v-primary);
+    --bs-dropdown-link-hover-bg: var(--v-primary-soft);
+    box-shadow: var(--v-shadow);
+}
+
+.list-group {
+    --bs-list-group-bg: var(--v-surface);
+    --bs-list-group-border-color: var(--v-line);
+    --bs-list-group-active-bg: var(--v-primary);
+    --bs-list-group-active-border-color: var(--v-primary);
+    --bs-list-group-action-hover-bg: var(--v-primary-soft);
+}
+
+.nav-pills {
+    --bs-nav-pills-link-active-bg: var(--v-primary);
+    --bs-nav-pills-border-radius: var(--v-radius-sm);
+}
+
+.nav-tabs {
+    --bs-nav-tabs-link-active-color: var(--v-primary);
+    --bs-nav-tabs-link-active-border-color: var(--v-line) var(--v-line) var(--v-surface);
+}
+
+.pagination {
+    --bs-pagination-color: var(--v-ink);
+    --bs-pagination-bg: var(--v-surface);
+    --bs-pagination-border-color: var(--v-line);
+    --bs-pagination-hover-bg: var(--v-primary-soft);
+    --bs-pagination-hover-color: var(--v-primary-dark);
+    --bs-pagination-active-bg: var(--v-primary);
+    --bs-pagination-active-border-color: var(--v-primary);
+    --bs-pagination-focus-bg: var(--v-primary-soft);
+    --bs-pagination-focus-box-shadow: var(--v-ring);
+    --bs-pagination-border-radius: var(--v-radius-sm);
+}
+
+.table {
+    --bs-table-border-color: var(--v-line);
+    --bs-table-hover-bg: var(--v-primary-soft);
+}
+
+.table > thead th {
+    font-weight: 600;
+    font-size: .8125rem;
+    color: var(--v-muted);
+}
+
+.alert {
+    --bs-alert-border-radius: var(--v-radius);
+    border-width: 1px;
+}
+
+.alert-danger {
+    --bs-alert-bg: var(--v-danger-soft);
+    --bs-alert-border-color: var(--v-danger-line);
+    --bs-alert-color: var(--v-danger);
+}
+
+.alert-success {
+    --bs-alert-bg: var(--v-success-soft);
+    --bs-alert-border-color: #C5E3D8;
+    --bs-alert-color: var(--v-success);
+}
+
+.alert-warning {
+    --bs-alert-bg: var(--v-warning-soft);
+    --bs-alert-border-color: #EBDCB0;
+    --bs-alert-color: var(--v-warning);
+}
+
+.badge {
+    font-weight: 500;
+    border-radius: var(--v-radius-sm);
+}
+
+.progress {
+    --bs-progress-bar-bg: var(--v-primary);
+    --bs-progress-bg: var(--v-primary-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vitalis-field .input-group,
+    .btn {
+        transition: none;
+    }
+}
+
+
+.vitalis-hint {
+    font-size: .8125rem;
+    color: var(--v-muted);
+}
+
+.vitalis-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .625rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    text-decoration: none;
+    color: inherit;
+}
+
+.vitalis-brand-mark {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    border-radius: .55rem;
+    background: var(--v-primary);
+    color: #fff;
+    font-size: 1.05rem;
+}
+
+/* Sobre foto: vidrio en vez de sólido. */
+.vitalis-brand--onDark .vitalis-brand-mark {
+    background: rgba(255, 255, 255, .16);
+    backdrop-filter: blur(6px);
+}
+
+/* 7.3 Campo con ícono ------------------------------------------------------
+   El borde y el anillo de foco viven en el .input-group, no en el <input>.
+   Eso hace que ícono + campo + botón se lean como una sola pieza. */
+
+.vitalis-field .input-group {
+    background: var(--v-surface);
+    border: 1px solid var(--v-line);
+    border-radius: var(--v-radius);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.vitalis-field .input-group:focus-within {
+    border-color: var(--v-primary);
+    box-shadow: var(--v-ring);
+}
+
+.vitalis-field .input-group > .form-control,
+.vitalis-field .input-group > .form-select,
+.vitalis-field .input-group > .input-group-text,
+.vitalis-field .input-group > .btn {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.vitalis-field .input-group > .form-control {
+    padding: .8rem .25rem;
+    font-size: 1rem;
+}
+
+.vitalis-field .input-group-text {
+    color: var(--v-muted);
+    padding-inline: .9rem .5rem;
+}
+
+.vitalis-field .vitalis-toggle {
+    color: var(--v-muted);
+    padding-inline: .9rem;
+}
+
+.vitalis-field .vitalis-toggle:hover {
+    color: var(--v-ink);
+}
+
+.vitalis-field.has-error .input-group {
+    border-color: var(--v-danger-line);
+}
+
+.vitalis-field.has-error .input-group:focus-within {
+    border-color: var(--v-danger);
+    box-shadow: var(--v-ring-danger);
+}
+
+
+.vitalis-auth {
+    background-color: var(--v-bg);
+}
+
+.vitalis-auth-form {
+    width: 100%;
+    max-width: 400px;
+}
+
+.vitalis-visual img {
+    filter: saturate(.9) contrast(1.03);
+}
+
+.vitalis-visual::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(6, 42, 38, .55) 0%,
+        rgba(6, 42, 38, .10) 38%,
+        rgba(6, 42, 38, .93) 100%
+    );
+}
+
+.vitalis-visual-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+.vitalis-visual-copy {
+    max-width: 26rem;
+    text-wrap: balance;
+}
+
+.vitalis-visual-copy h2 {
+    line-height: 1.15;
+}

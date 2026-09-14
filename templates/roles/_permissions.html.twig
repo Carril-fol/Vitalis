@@ -1,0 +1,51 @@
+{% set actionLabels = {read: 'Ver', create: 'Crear', update: 'Editar', delete: 'Borrar'} %}
+{% set moduleLabels = {administratives: 'Administrativos', medics: 'Médicos', patients: 'Pacientes', turns: 'Turnos', '': 'Otros'} %}
+
+<fieldset class="mt-4">
+    <legend class="form-label fs-6">Permisos</legend>
+
+    {% if permissions.modules is empty %}
+        <p class="vitalis-hint mb-0">No hay permisos cargados.</p>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Módulo</th>
+                        {% for action in permissions.actions %}
+                            <th scope="col" class="text-center">{{ actionLabels[action] ?? action }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for module, byAction in permissions.modules %}
+                        <tr>
+                            <th scope="row" class="fw-normal">{{ moduleLabels[module] ?? module }}</th>
+                            {% for action in permissions.actions %}
+                                <td class="text-center">
+                                    {% if byAction[action] is defined %}
+                                        {% set permission = byAction[action] %}
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="permissions[]"
+                                            value="{{ permission.id }}"
+                                            aria-label="{{ (actionLabels[action] ?? action) ~ ' ' ~ (moduleLabels[module] ?? module) }}"
+                                            {{ permission.id in old.permissionIds ? 'checked' }}
+                                        >
+                                    {% else %}
+                                        <span class="vitalis-hint">—</span>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    <p class="vitalis-hint mt-2 mb-0">
+        Lo que puede hacer cada usuario con este rol. Se puede dejar sin permisos y asignárselos después.
+    </p>
+</fieldset>

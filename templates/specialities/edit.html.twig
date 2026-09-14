@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Centro Clinico Vitalis - Editar especialidad{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-0">
+
+    <!-- Encabezado -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1">Editar especialidad</h1>
+            <p class="text-body-secondary mb-0">
+                Modificá la información de la especialidad seleccionada.
+            </p>
+        </div>
+
+        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" href="{{ path('specialities.index') }}">
+            <i class="bi bi-arrow-left"></i>
+            Volver a especialidades
+        </a>
+    </div>
+
+    {% if error is not null %}
+        <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+            <i class="bi bi-exclamation-circle-fill mt-1"></i>
+            <div>
+                <strong>No se pudo guardar la especialidad.</strong>
+                <div>{{ error }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Formulario -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-body border-bottom py-3">
+            <div class="d-flex align-items-center gap-3">
+
+                <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width: 40px; height: 40px;">
+                    <i class="bi bi-clipboard2-pulse"></i>
+                </div>
+
+                <div>
+                    <h2 class="h6 fw-semibold mb-1">Información de la especialidad</h2>
+                    <p class="small text-body-secondary mb-0">
+                        Actualizá el nombre de la especialidad.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form method="post" action="{{ path('specialities.edit', {id: speciality.id}) }}">
+
+                <div class="mb-4">
+
+                    <label for="name" class="form-label fw-semibold">Nombre de la especialidad</label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        maxlength="50"
+                        required
+                        class="form-control{{ error is not null ? ' is-invalid' }}"
+                        value="{{ old.name }}"
+                        placeholder="Ej. Cardiología"
+                    >
+
+                    <div class="form-text">
+                        Utilizá un nombre claro para identificar la especialidad.
+                    </div>
+
+                    {% if error is not null %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endif %}
+
+                </div>
+
+                <div class="d-flex flex-column flex-sm-row justify-content-end gap-2">
+
+                    <a class="btn btn-outline-secondary" href="{{ path('specialities.index') }}">
+                        Cancelar
+                    </a>
+
+                    <button type="submit" class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-check-lg"></i>
+                        Guardar cambios
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% set error = errors.name[0] ?? null %}

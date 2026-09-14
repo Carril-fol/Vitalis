@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Centro Clinico Vitalis - Iniciar sesión{% endblock %}
+
+{% block layout %}
+{% set summary = errors.credentials[0] ?? null %}
+
+<div class="vitalis-auth container-fluid px-0">
+    <div class="row g-0 min-vh-100">
+        <!-- Panel izquierdo: imagen -->
+        <div class="vitalis-visual col-lg-5 d-none d-lg-block position-relative overflow-hidden">
+            <img
+                src="{{ asset('images/login-image.webp') }}"
+                alt=""
+                class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
+            >
+
+            <div class="vitalis-visual-layer d-flex flex-column justify-content-between p-5 text-white">
+                <span class="vitalis-brand vitalis-brand--onDark fs-5">
+                    <span class="vitalis-brand-mark">
+                        <i class="bi bi-heart-pulse"></i>
+                    </span>
+                    Vitalis
+                </span>
+
+                <div class="vitalis-visual-copy">
+                    <h2 class="h2 mb-3 text-white">
+                        Todo el consultorio, en un solo lugar
+                    </h2>
+
+                    <p class="mb-0 text-white-50">
+                        Turnos, historias clínicas y facturación,
+                        siempre sincronizados.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel derecho: formulario -->
+        <div class="col-12 col-lg-7">
+            <div class="d-flex align-items-center justify-content-center min-vh-100 p-4 p-md-5">
+                <div class="vitalis-auth-form">
+                    <span class="vitalis-brand fs-5 mb-5 d-lg-none">
+                        <span class="vitalis-brand-mark">
+                            <i class="bi bi-heart-pulse"></i>
+                        </span>
+                        Vitalis
+                    </span>
+
+                    <div class="mb-4">
+                        <h1 class="h3 mb-2">
+                            Iniciar sesión
+                        </h1>
+
+                        <p class="vitalis-hint mb-0">
+                            Ingresá con tu cuenta para continuar.
+                        </p>
+                    </div>
+
+                    {% if summary is not null %}
+                        <div
+                            class="alert alert-danger d-flex align-items-start gap-2 mb-4"
+                            role="alert"
+                            id="login-error"
+                        >
+                            <i class="bi bi-exclamation-circle-fill mt-1 flex-shrink-0"></i>
+                            <div>
+                                <strong class="d-block">No se pudo iniciar sesión</strong>
+                                {{ summary }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Formulario -->
+                    <form method="post" action="{{ path('login') }}" data-vitalis-loading>
+
+                        <div class="vitalis-field mb-3">
+
+                            <label for="email" class="form-label">
+                                Email
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-envelope"></i>
+                                </span>
+
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    required
+                                    autofocus
+                                    autocomplete="username"
+                                    class="form-control"
+                                    value="{{ old.email ?? '' }}"
+                                    placeholder="tu@email.com"
+                                    {% if summary is not null %}aria-describedby="login-error"{% endif %}
+                                >
+                            </div>
+                        </div>
+
+                        <div class="vitalis-field mb-3">
+
+                            <label for="password" class="form-label">
+                                Contraseña
+                            </label>
+
+                            <div class="input-group">
+
+                                <span class="input-group-text">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    required
+                                    autocomplete="current-password"
+                                    class="form-control"
+                                    placeholder="Ingresá tu contraseña"
+                                    data-vitalis-capslock="#caps-lock"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="btn vitalis-toggle"
+                                    data-vitalis-toggle="#password"
+                                    aria-controls="password"
+                                    aria-pressed="false"
+                                    aria-label="Mostrar contraseña"
+                                >
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
+                                </button>
+
+                            </div>
+
+                            <p class="vitalis-hint mt-2 mb-0 d-none" id="caps-lock" aria-live="polite">
+                                <i class="bi bi-capslock"></i>
+                                Bloq Mayús está activado.
+                            </p>
+
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-4">
+
+                            <div class="form-check mb-0">
+
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    id="remember"
+                                    name="remember"
+                                    value="1"
+                                >
+
+                                <label class="form-check-label vitalis-hint" for="remember">
+                                    Mantener la sesión iniciada
+                                </label>
+
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" data-controller="csrf-protection">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-block-lg d-inline-flex align-items-center justify-content-center gap-2"
+                            data-loading-label="Ingresando…"
+                        >
+                            <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                            <span class="label">Iniciar sesión</span>
+                        </button>
+                    </form>
+
+                    <p class="vitalis-hint text-center mt-4 mb-0">
+                        ¿Problemas para entrar?
+                        <a href="mailto:soporte@vitalis.app">Escribinos</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

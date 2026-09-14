@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Centro Clinico Vitalis - Nuevo personal médico{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+        <!-- Encabezado de página -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+            <div>
+                <h1 class="h3 mb-2">Nuevo personal médico</h1>
+                <p class="vitalis-hint mb-0">
+                    Se crean la persona y su legajo en un solo paso. Incluye médicos, enfermeros, auxiliares y estudiantes internos.
+                </p>
+            </div>
+
+            <a class="btn btn-link d-inline-flex align-items-center gap-2 flex-shrink-0 px-0" href="{{ path('medicals.index') }}">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                Volver a personal médico
+            </a>
+        </div>
+
+        <!-- Manejo de errores global del formulario -->
+        {% if not form.vars.valid %}
+            <div class="alert alert-danger d-flex align-items-start gap-2 mb-4" role="alert">
+                <i class="bi bi-exclamation-circle-fill mt-1 flex-shrink-0" aria-hidden="true"></i>
+                <div>
+                    <strong class="d-block">No se pudo crear el registro</strong>
+                    Revisá los campos marcados en el formulario.
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Comienzo del formulario con form_start -->
+        <div class="row">
+            <div class="col-12 col-xl-8">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'data-vitalis-loading': true}}) }}
+
+                <!-- CARD 1: DATOS DE LA PERSONA -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-brand-mark">
+                            <i class="bi bi-person-plus" aria-hidden="true"></i>
+                        </span>
+                        <h2 class="h6 mb-0">Datos de la persona</h2>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row g-3">
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.firstName, 'Nombre', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.firstName, {'attr' : {'class' : 'form-control' ~ (form.user.firstName.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder' : 'Ej. Ana', 'autocomplete' : 'off'}}) }}
+                                {{ form_errors(form.user.firstName) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.lastName, 'Apellido', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.lastName, {'attr' : {'class' : 'form-control' ~ (form.user.lastName.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder' : 'Ej. Gómez', 'autocomplete' : 'off'}}) }}
+                                {{ form_errors(form.user.lastName) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.dni, 'DNI', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.dni, {'attr' : {'class' : 'form-control' ~ (form.user.dni.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder' : 'Sin puntos', 'autocomplete' : 'off'}}) }}
+                                {{ form_errors(form.user.dni) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.birthDate, 'Fecha de nacimiento', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.birthDate, {'attr' : {'class' : 'form-control' ~ (form.user.birthDate.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder' : 'AAAA-MM-DD'}}) }}
+                                {{ form_errors(form.user.birthDate) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.email, {'attr' : {'class' : 'form-control' ~ (form.user.email.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder' : 'nombre@clinica.local', 'autocomplete' : 'off'}}) }}
+                                {{ form_errors(form.user.email) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.password, 'Contraseña inicial', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.password, {'attr' : {'class' : 'form-control' ~ (form.user.password.vars.errors|length > 0 ? ' is-invalid' : ''), 'autocomplete' : 'new-password'}}) }}
+                                {% if form.user.password.vars.errors|length == 0 %}
+                                    <div class="form-text">La persona la cambia en su primer ingreso.</div>
+                                {% endif %}
+                                {{ form_errors(form.user.password) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.phone, 'Teléfono', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.phone, {'attr' : {'class' : 'form-control' ~ (form.user.phone.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder' : 'Ej. 1123456789', 'autocomplete' : 'off'}}) }}
+                                {{ form_errors(form.user.phone) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.address, 'Dirección', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.address, {'attr' : {'class' : 'form-control' ~ (form.user.address.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder' : 'Ej. Av. Corrientes 1234', 'autocomplete' : 'off'}}) }}
+                                {{ form_errors(form.user.address) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.user.city, 'Ciudad', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.user.city, {'attr' : {'class' : 'form-control' ~ (form.user.city.vars.errors|length > 0 ? ' is-invalid' : ''), 'placeholder' : 'Ej. CABA', 'autocomplete' : 'off'}}) }}
+                                {{ form_errors(form.user.city) }}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2: INFORMACIÓN MÉDICA -->
+                <div class="card">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-brand-mark">
+                            <i class="bi bi-hospital" aria-hidden="true"></i>
+                        </span>
+                        <h2 class="h6 mb-0">Información Médica</h2>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row g-3">
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.roleId, 'Puesto', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.roleId, {'attr' : {'class' : 'form-select' ~ (form.roleId.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                                {{ form_errors(form.roleId) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                {{ form_label(form.specialityId, 'Especialidad', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.specialityId, {'attr' : {'class' : 'form-select' ~ (form.specialityId.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                                {{ form_errors(form.specialityId) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6 d-flex align-items-center">
+                                <div class="form-check mt-md-4">
+                                    {{ form_widget(form.hasLicense, {
+            'attr': {
+                'class': 'form-check-input',
+                'data-bs-toggle': 'collapse',
+                'data-bs-target': '#licenseNumberContainer'
+            }
+        }) }}
+
+                                    {{ form_label(form.hasLicense, '¿Posee matrícula?', {
+            'label_attr': {'class': 'form-check-label'}
+        }) }}
+                                </div>
+
+                                {{ form_errors(form.hasLicense) }}
+                            </div>
+
+                            <div class="col-12 col-sm-6 collapse" id="licenseNumberContainer">
+                                {{ form_label(form.licenseNumber, 'Número de Matrícula', {'label_attr': {'class': 'form-label'}}) }}
+
+                                {{ form_widget(form.licenseNumber, {'attr': {'class': 'form-control', 'placeholder': 'Nº de registro'}}) }}
+
+                                {{ form_errors(form.licenseNumber) }}
+                            </div>
+
+                        </div>
+
+                        <div class="d-grid d-sm-flex justify-content-sm-end gap-2 mt-4">
+
+                            <a class="btn btn-link order-2 order-sm-1" href="{{ path('medicals.index') }}">
+                                Cancelar
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary order-1 order-sm-2 d-inline-flex align-items-center justify-content-center gap-2"
+                                data-loading-label="Creando…"
+                            >
+                                <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                                <span class="label">Guardar personal médico</span>
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
