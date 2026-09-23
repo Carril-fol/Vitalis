@@ -24,7 +24,7 @@ security:
                 username_parameter: email
                 password_parameter: password
                 enable_csrf: true
-                default_target_path: roles.index
+                default_target_path: dashboard.index
             logout:
                 path: logout
                 target: login
@@ -36,6 +36,7 @@ security:
 
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS } # solo "/" exacto (landing)
         - { path: ^/, roles: ROLE_USER }
 
 when@test:
