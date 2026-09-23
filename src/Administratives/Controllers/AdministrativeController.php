@@ -1,109 +1,86 @@
 <?php
 namespace App\Administratives\Controllers;
 
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-use App\Core\ValidationException;
-
-use App\Administratives\Interfaces\IAdministrativeService;
-use App\Administratives\Schemas\AdministrativeSchema;
-use App\Administratives\Schemas\AdministrativeRegistrationSchema;
+use App\Administratives\Models\Administrative;
+use App\Administratives\Forms\AdministrativeType;
+use App\Administratives\Services\AdministrativeService;
 
 
-#[Route('/administratives')]
+#[Route('/administratives', name: 'administratives.')]
 class AdministrativeController extends AbstractController
 {
-    private IAdministrativeService $administrativeService;
 
-    public function __construct(IAdministrativeService $administrativeService) {
-        $this->administrativeService = $administrativeService;
+    public function __construct(
+        private readonly AdministrativeService $service,
+    ) {
     }
 
-    #[Route('', name: 'administratives.index', methods: array('GET'))]
-    public function index(): Response {
-        return $this->render('administratives/index.html.twig', array(
-            'administratives' => $this->administrativeService->findAll(),
-        ));
-    }
+    private function save(Request $request, Administrative $administrative, string $template): Response
+    {
+        $isNew = $administrative->getId() === null;
 
-    #[Route('/create', name: 'administratives.create', methods: array('GET', 'POST'))]
-    public function create(Request $request): Response {
-        $old    = array();
-        $errors = array();
+        $form = $this->createForm(AdministrativeType::class, $administrative, [
+            'require_password' => $isNew,
+        ]);
+        $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            $schema = AdministrativeRegistrationSchema::fromPost($request->request->all());
-            $old = $request->request->all();
-            unset($old['password']);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->service->save($administrative, $form->get('user')->get('plainPassword')->getData());
 
-            try {
-                $this->administrativeService->register($schema);
-                return $this->redirectToRoute('administratives.index');
-            } catch (ValidationException $e) {
-                $errors = $e->errors();
-            }
+            $this->addFlash('success', $isNew
+                ? 'Administrativo registrado.'
+                : 'Los cambios del administrativo se guardaron.');
+
+            return $this->redirectToRoute('administratives.index');
         }
 
-        return $this->render('administratives/create.html.twig', array(
-            'errors'    => $errors,
-            'old'       => $old,
-            'positions' => $this->administrativeService->getPositions(),
-        ), new Response(status: $errors ? 422 : 200));
+        return $this->render($template, ['form' => $form]);
     }
 
-    #[Route('/{id}/edit', name: 'administratives.edit', requirements: array('id' => '\d+'), methods: array('GET', 'POST'))]
-    public function edit(Request $request, int $id): Response {
-        $administrative = $this->administrativeService->getAdministrativeById($id);
-        $schema = AdministrativeSchema::fromPost($administrative);
-        $errors = array();
-
-        $canChangePosition = $this->isGranted('administratives.change_position');
-
-        if ($request->isMethod('POST')) {
-            $schema = AdministrativeSchema::fromPost($request->request->all());
-
-            if (!$canChangePosition) {
-                $schema->roleId = $administrative['role_id'];
-            }
-
-            try {
-                $this->administrativeService->update($id, $schema);
-                return $this->redirectToRoute('administratives.index');
-            } catch (ValidationException $e) {
-                $errors = $e->errors();
-            }
-        }
-
-        return $this->render('administratives/edit.html.twig', array(
-            'administrative'    => $administrative,
-            'errors'            => $errors,
-            'old'               => $schema,
-            'positions'         => $this->administrativeService->getPositions(),
-            'canChangePosition' => $canChangePosition,
-        ), new Response(status: $errors ? 422 : 200));
+    #[Route('', name: 'index', methods: array('GET'))]
+    #[IsGranted('read_administratives')]
+    public function index(): Response
+    {
+        return $this->render('administratives/index.html.twig', [
+            'administratives' => $this->service->findAll(),
+        ]);
     }
 
-    #[Route('/{id}/deactivate', name: 'administratives.deactivate', requirements: array('id' => '\d+'), methods: array('POST'))]
-    public function deactivate(Request $request, int $id): Response {
-        if (!$this->isCsrfTokenValid('status-administrative-' . $id, $request->request->getString('_token'))) {
+    #[Route('/create', name: 'create', methods: ['GET', 'POST'])]
+    #[IsGranted('create_administratives')]
+    public function create(Request $request): Response
+    {
+        return $this->save($request, new Administrative(), 'administratives/create.html.twig');
+    }
+
+    #[Route('/{id}/edit', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('update_administratives')]
+    public function edit(Request $request, #[MapEntity(id: 'id')] Administrative $administrative): Response
+    {
+        return $this->save($request, $administrative, 'administratives/edit.html.twig');
+    }
+
+    #[Route('/{id}/{status}', name: 'status', requirements: ['id' => '\d+', 'status' => 'activate|deactivate'], methods: ['POST'])]
+    #[IsGranted('update_administratives')]
+    public function status(Request $request, #[MapEntity(id: 'id')] Administrative $administrative, string $status): Response
+    {
+        if (!$this->isCsrfTokenValid('status-administrative-' . $administrative->getId(), $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException();
         }
 
-        $this->administrativeService->deactivate($id);
+        $this->service->changeStatus($administrative, $status === 'activate');
 
-        return $this->redirectToRoute('administratives.index');
-    }
+        $this->addFlash('success', $status === 'activate'
+            ? 'Administrativo reactivado.'
+            : 'Administrativo dado de baja. Sus datos se conservan.');
 
-    #[Route('/{id}/activate', name: 'administratives.activate', requirements: array('id' => '\d+'), methods: array('POST'))]
-    public function activate(Request $request, int $id): Response {
-        if (!$this->isCsrfTokenValid('status-administrative-' . $id, $request->request->getString('_token'))) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $this->administrativeService->activate($id);
         return $this->redirectToRoute('administratives.index');
     }
 }
