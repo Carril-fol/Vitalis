@@ -1,110 +1,100 @@
-/* ==========================================================================
-   Vitalis — capa de tema sobre Bootstrap 5.3
-   --------------------------------------------------------------------------
-   Cargar SIEMPRE después de bootstrap.min.css. El orden importa: varias
-   reglas de acá tienen la misma especificidad que las de Bootstrap y ganan
-   solo por venir después.
 
-   Índice
-     1. Tokens
-     2. Puente con Bootstrap
-     3. Base
-     4. Botones
-     5. Formularios
-     6. Superficies y componentes
-     7. Piezas propias (.vitalis-*)
-     8. Layout de autenticación
-   ========================================================================== */
-
-/* Para mejor performance, borrá este @import y poné los <link> de la fuente
-   en el <head> del layout. Si lo dejás, tiene que ser la primera regla. */
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
-
-
-/* 1. Tokens ================================================================
-   Única fuente de verdad del sistema. Si querés cambiar la identidad de la
-   app entera, se toca acá y en ningún otro lado. */
 
 :root {
-    /* Marca */
-    --v-primary:       #0F766E;
-    --v-primary-dark:  #0B5F58;
-    --v-primary-soft:  #E7F1EF;
-    --v-primary-rgb:   15, 118, 110;
+    --v-primary: #0F766E;
+    --v-primary-dark: #0B5F58;
+    --v-primary-soft: #E7F1EF;
+    --v-primary-rgb: 15, 118, 110;
 
-    /* Neutros */
-    --v-ink:           #12231F;
-    --v-muted:         #5C6B68;
-    --v-placeholder:   #9BAAA7;
-    --v-line:          #DCE4E2;
-    --v-surface:       #FFFFFF;
-    --v-bg:            #F3F6F5;
+    --v-ink: #12231F;
+    --v-muted: #5C6B68;
+    --v-placeholder: #9BAAA7;
+    --v-line: #DCE4E2;
+    --v-surface: #FFFFFF;
+    --v-bg: #F3F6F5;
 
-    /* Estados */
-    --v-danger:        #B42318;
-    --v-danger-soft:   #FDF2F2;
-    --v-danger-line:   #F3C9C9;
-    --v-success:       #197A5B;
-    --v-success-soft:  #E9F5F0;
-    --v-warning:       #9A6700;
-    --v-warning-soft:  #FDF6E3;
+    --v-danger: #B42318;
+    --v-danger-soft: #FDF2F2;
+    --v-danger-line: #F3C9C9;
+    --v-success: #197A5B;
+    --v-success-soft: #E9F5F0;
+    --v-warning: #9A6700;
+    --v-warning-soft: #FDF6E3;
 
-    /* Forma */
-    --v-radius-sm:     .4rem;
-    --v-radius:        .65rem;
-    --v-radius-lg:     1rem;
+    --v-radius-sm: .4rem;
+    --v-radius: .65rem;
+    --v-radius-lg: 1rem;
 
-    --v-shadow-sm:     0 1px 2px rgba(18, 35, 31, .06);
-    --v-shadow:        0 8px 28px -16px rgba(18, 35, 31, .35);
-    --v-ring:          0 0 0 3px rgba(var(--v-primary-rgb), .15);
-    --v-ring-danger:   0 0 0 3px rgba(180, 35, 24, .14);
+    --v-shadow-sm: 0 1px 2px rgba(18, 35, 31, .06);
+    --v-shadow: 0 8px 28px -16px rgba(18, 35, 31, .35);
+    --v-ring: 0 0 0 3px rgba(var(--v-primary-rgb), .15);
+    --v-ring-danger: 0 0 0 3px rgba(180, 35, 24, .14);
 
-    /* Tipografía */
     --v-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-
-/* 2. Puente con Bootstrap ==================================================
-   Bootstrap 5.3 expone casi todo como custom properties. Redefinirlas acá
-   propaga la marca a los componentes sin tocar el CSS compilado. */
-
 :root {
-    --bs-body-font-family:    var(--v-sans);
-    --bs-body-color:          var(--v-ink);
-    --bs-body-color-rgb:      18, 35, 31;
-    --bs-body-bg:             var(--v-bg);
-    --bs-emphasis-color:      var(--v-ink);
-    --bs-secondary-color:     var(--v-muted);
-    --bs-tertiary-color:      var(--v-placeholder);
-    --bs-border-color:        var(--v-line);
-    --bs-heading-color:       var(--v-ink);
+    --bs-body-font-family: var(--v-sans);
+    --bs-body-color: var(--v-ink);
+    --bs-body-color-rgb: 18, 35, 31;
+    --bs-body-bg: var(--v-bg);
+    --bs-emphasis-color: var(--v-ink);
+    --bs-secondary-color: var(--v-muted);
+    --bs-tertiary-color: var(--v-placeholder);
+    --bs-border-color: var(--v-line);
+    --bs-heading-color: var(--v-ink);
 
-    --bs-primary:             var(--v-primary);
-    --bs-primary-rgb:         var(--v-primary-rgb);
-    --bs-primary-bg-subtle:   var(--v-primary-soft);
+    --bs-primary: var(--v-primary);
+    --bs-primary-rgb: var(--v-primary-rgb);
+    --bs-primary-bg-subtle: var(--v-primary-soft);
     --bs-primary-border-subtle: #BFDCD7;
     --bs-primary-text-emphasis: var(--v-primary-dark);
 
-    --bs-link-color-rgb:       var(--v-primary-rgb);
+    --bs-danger: var(--v-danger);
+    --bs-danger-rgb: 180, 35, 24;
+    --bs-danger-bg-subtle: var(--v-danger-soft);
+    --bs-danger-border-subtle: var(--v-danger-line);
+    --bs-danger-text-emphasis: var(--v-danger);
+
+    --bs-success: var(--v-success);
+    --bs-success-rgb: 25, 122, 91;
+    --bs-success-bg-subtle: var(--v-success-soft);
+    --bs-success-border-subtle: #C5E3D8;
+    --bs-success-text-emphasis: var(--v-success);
+
+    --bs-warning: var(--v-warning);
+    --bs-warning-rgb: 154, 103, 0;
+    --bs-warning-bg-subtle: var(--v-warning-soft);
+    --bs-warning-border-subtle: #EBDCB0;
+    --bs-warning-text-emphasis: var(--v-warning);
+
+    --bs-link-color-rgb: var(--v-primary-rgb);
     --bs-link-hover-color-rgb: 11, 95, 88;
 
-    --bs-border-radius:       var(--v-radius);
-    --bs-border-radius-sm:    var(--v-radius-sm);
-    --bs-border-radius-lg:    var(--v-radius-lg);
+    --bs-border-radius: var(--v-radius);
+    --bs-border-radius-sm: var(--v-radius-sm);
+    --bs-border-radius-lg: var(--v-radius-lg);
 
-    --bs-focus-ring-color:    rgba(var(--v-primary-rgb), .2);
+    --bs-focus-ring-color: rgba(var(--v-primary-rgb), .2);
 }
-
-
-/* 3. Base ================================================================== */
 
 body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6,
-.h1, .h2, .h3, .h4, .h5, .h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
     font-weight: 600;
     letter-spacing: -.02em;
 }
@@ -118,7 +108,6 @@ a {
     background: rgba(var(--v-primary-rgb), .18);
 }
 
-/* Piso de accesibilidad para lo que Bootstrap no cubre. */
 a:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
     outline: 2px solid var(--v-primary);
@@ -126,68 +115,66 @@ a:focus-visible,
     border-radius: 2px;
 }
 
-
-/* 4. Botones =============================================================== */
-
 .btn {
     --bs-btn-font-weight: 600;
     --bs-btn-border-radius: var(--v-radius);
 }
 
 .btn-primary {
-    --bs-btn-bg:                   var(--v-primary);
-    --bs-btn-border-color:         var(--v-primary);
-    --bs-btn-hover-bg:             var(--v-primary-dark);
-    --bs-btn-hover-border-color:   var(--v-primary-dark);
-    --bs-btn-active-bg:            var(--v-primary-dark);
-    --bs-btn-active-border-color:  var(--v-primary-dark);
-    --bs-btn-disabled-bg:          var(--v-primary);
+    --bs-btn-bg: var(--v-primary);
+    --bs-btn-border-color: var(--v-primary);
+    --bs-btn-hover-bg: var(--v-primary-dark);
+    --bs-btn-hover-border-color: var(--v-primary-dark);
+    --bs-btn-active-bg: var(--v-primary-dark);
+    --bs-btn-active-border-color: var(--v-primary-dark);
+    --bs-btn-disabled-bg: var(--v-primary);
     --bs-btn-disabled-border-color: var(--v-primary);
-    --bs-btn-focus-shadow-rgb:     var(--v-primary-rgb);
+    --bs-btn-focus-shadow-rgb: var(--v-primary-rgb);
 }
 
 .btn-outline-primary {
-    --bs-btn-color:                var(--v-primary);
-    --bs-btn-border-color:         #BFDCD7;
-    --bs-btn-hover-bg:             var(--v-primary);
-    --bs-btn-hover-border-color:   var(--v-primary);
-    --bs-btn-active-bg:            var(--v-primary-dark);
-    --bs-btn-active-border-color:  var(--v-primary-dark);
-    --bs-btn-disabled-color:       var(--v-primary);
+    --bs-btn-color: var(--v-primary);
+    --bs-btn-border-color: #BFDCD7;
+    --bs-btn-hover-bg: var(--v-primary);
+    --bs-btn-hover-border-color: var(--v-primary);
+    --bs-btn-active-bg: var(--v-primary-dark);
+    --bs-btn-active-border-color: var(--v-primary-dark);
+    --bs-btn-disabled-color: var(--v-primary);
     --bs-btn-disabled-border-color: #BFDCD7;
-    --bs-btn-focus-shadow-rgb:     var(--v-primary-rgb);
+    --bs-btn-focus-shadow-rgb: var(--v-primary-rgb);
 }
 
 .btn-link {
-    --bs-btn-color:       var(--v-primary);
+    --bs-btn-color: var(--v-primary);
     --bs-btn-hover-color: var(--v-primary-dark);
     --bs-btn-font-weight: 500;
 }
 
-/* Altura cómoda para acciones principales de formulario. */
 .btn-block-lg {
     padding-block: .85rem;
     font-size: 1rem;
     width: 100%;
 }
 
-
-/* 5. Formularios =========================================================== */
-
 .form-label {
     font-size: .875rem;
     font-weight: 500;
-    color: var(--v-muted);
+    color: var(--v-ink);
     margin-bottom: .4rem;
 }
 
 .form-control,
 .form-select {
-    padding: .65rem .9rem;
+    padding-block: .65rem;
+    padding-left: .9rem;
     background-color: var(--v-surface);
     border-color: var(--v-line);
     border-radius: var(--v-radius);
     color: var(--v-ink);
+}
+
+.form-control {
+    padding-right: .9rem;
 }
 
 .form-control::placeholder {
@@ -229,7 +216,6 @@ input:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--v-ink);
     box-shadow: 0 0 0 100px var(--v-surface) inset;
 }
-
 
 .card {
     --bs-card-bg: var(--v-surface);
@@ -296,7 +282,7 @@ input:-webkit-autofill:focus {
     --bs-table-hover-bg: var(--v-primary-soft);
 }
 
-.table > thead th {
+.table>thead th {
     font-weight: 600;
     font-size: .8125rem;
     color: var(--v-muted);
@@ -305,24 +291,6 @@ input:-webkit-autofill:focus {
 .alert {
     --bs-alert-border-radius: var(--v-radius);
     border-width: 1px;
-}
-
-.alert-danger {
-    --bs-alert-bg: var(--v-danger-soft);
-    --bs-alert-border-color: var(--v-danger-line);
-    --bs-alert-color: var(--v-danger);
-}
-
-.alert-success {
-    --bs-alert-bg: var(--v-success-soft);
-    --bs-alert-border-color: #C5E3D8;
-    --bs-alert-color: var(--v-success);
-}
-
-.alert-warning {
-    --bs-alert-bg: var(--v-warning-soft);
-    --bs-alert-border-color: #EBDCB0;
-    --bs-alert-color: var(--v-warning);
 }
 
 .badge {
@@ -336,12 +304,12 @@ input:-webkit-autofill:focus {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .vitalis-field .input-group,
     .btn {
         transition: none;
     }
 }
-
 
 .vitalis-hint {
     font-size: .8125rem;
@@ -358,27 +326,54 @@ input:-webkit-autofill:focus {
     color: inherit;
 }
 
-.vitalis-brand-mark {
+.vitalis-brand-mark,
+.vitalis-card-icon {
     display: grid;
     place-items: center;
     width: 2.25rem;
     height: 2.25rem;
     flex: none;
     border-radius: .55rem;
-    background: var(--v-primary);
-    color: #fff;
     font-size: 1.05rem;
 }
 
-/* Sobre foto: vidrio en vez de sólido. */
+.vitalis-brand-mark {
+    background: var(--v-primary);
+    color: #fff;
+}
+
+.vitalis-card-icon {
+    background: var(--bs-primary-bg-subtle);
+    color: var(--v-primary);
+}
+
 .vitalis-brand--onDark .vitalis-brand-mark {
     background: rgba(255, 255, 255, .16);
     backdrop-filter: blur(6px);
 }
 
-/* 7.3 Campo con ícono ------------------------------------------------------
-   El borde y el anillo de foco viven en el .input-group, no en el <input>.
-   Eso hace que ícono + campo + botón se lean como una sola pieza. */
+.vitalis-brand-logo {
+    width: auto;
+    height: 2.25rem;
+    flex: none;
+}
+
+.vitalis-sidebar .vitalis-brand-logo {
+    height: 3.5rem;
+}
+
+.vitalis-permissions .form-check {
+    display: flex;
+    justify-content: center;
+    min-height: 0;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.vitalis-permissions .form-check-input {
+    float: none;
+    margin: 0;
+}
 
 .vitalis-field .input-group {
     background: var(--v-surface);
@@ -392,16 +387,16 @@ input:-webkit-autofill:focus {
     box-shadow: var(--v-ring);
 }
 
-.vitalis-field .input-group > .form-control,
-.vitalis-field .input-group > .form-select,
-.vitalis-field .input-group > .input-group-text,
-.vitalis-field .input-group > .btn {
+.vitalis-field .input-group>.form-control,
+.vitalis-field .input-group>.form-select,
+.vitalis-field .input-group>.input-group-text,
+.vitalis-field .input-group>.btn {
     border: 0;
     background: transparent;
     box-shadow: none;
 }
 
-.vitalis-field .input-group > .form-control {
+.vitalis-field .input-group>.form-control {
     padding: .8rem .25rem;
     font-size: 1rem;
 }
@@ -429,7 +424,6 @@ input:-webkit-autofill:focus {
     box-shadow: var(--v-ring-danger);
 }
 
-
 .vitalis-auth {
     background-color: var(--v-bg);
 }
@@ -447,12 +441,10 @@ input:-webkit-autofill:focus {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        180deg,
-        rgba(6, 42, 38, .55) 0%,
-        rgba(6, 42, 38, .10) 38%,
-        rgba(6, 42, 38, .93) 100%
-    );
+    background: linear-gradient(180deg,
+            rgba(6, 42, 38, .55) 0%,
+            rgba(6, 42, 38, .10) 38%,
+            rgba(6, 42, 38, .93) 100%);
 }
 
 .vitalis-visual-layer {
@@ -468,4 +460,89 @@ input:-webkit-autofill:focus {
 
 .vitalis-visual-copy h2 {
     line-height: 1.15;
+}
+
+.btn-outline-light:hover,
+.btn-outline-light:active {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+}
+
+.vitalis-sidebar {
+    --bs-offcanvas-width: 260px;
+    background-color: var(--v-surface) !important;
+}
+
+@media (min-width: 992px) {
+    .vitalis-sidebar {
+        width: 260px;
+    }
+}
+
+.vitalis-sidebar .nav-link {
+    --bs-nav-link-color: var(--v-muted);
+    --bs-nav-link-hover-color: var(--v-ink);
+    font-weight: 500;
+    border-left: 3px solid transparent;
+}
+
+.vitalis-sidebar .nav-link:hover {
+    background-color: rgba(var(--v-primary-rgb), .07);
+}
+
+.vitalis-sidebar .nav-link.active {
+    border-left-color: var(--v-primary);
+    background-color: rgba(var(--v-primary-rgb), .10);
+    color: var(--v-primary-dark);
+    font-weight: 600;
+}
+
+.landing-nav a:not(.btn) {
+    color: var(--v-ink);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.landing-nav a:not(.btn):hover {
+    color: var(--v-primary);
+}
+
+.vitalis-landing main > section:nth-of-type(even) {
+    background: var(--v-surface);
+}
+
+.landing-slide-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(18, 35, 31, .8) 0%, rgba(18, 35, 31, .35) 60%, transparent 100%);
+}
+
+.landing-slide-copy {
+    max-width: 560px;
+}
+
+.landing-eyebrow {
+    display: inline-block;
+    margin-bottom: .5rem;
+    color: var(--v-primary);
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.landing-history-img {
+    border-radius: var(--v-radius-lg);
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    width: 100%;
+}
+
+.landing-footer {
+    background: var(--v-ink);
+    color: rgba(255, 255, 255, .7);
+    font-size: .9rem;
 }
