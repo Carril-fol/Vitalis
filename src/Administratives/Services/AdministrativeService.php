@@ -6,7 +6,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 use App\Administratives\Models\Administrative;
 
-
 class AdministrativeService
 {
     public function __construct(
@@ -15,7 +14,7 @@ class AdministrativeService
     ) {
     }
 
-    /** @return Administrative[] Ordenados por apellido, con usuario y rol en la misma consulta. */
+    /** @return Administrative[] */
     public function findAll(): array
     {
         return $this->em->createQueryBuilder()

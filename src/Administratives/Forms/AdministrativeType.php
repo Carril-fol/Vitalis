@@ -11,7 +11,6 @@ use App\Administratives\Models\Administrative;
 use App\Roles\Models\RoleArea;
 use App\Users\Forms\UserType;
 
-
 class AdministrativeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

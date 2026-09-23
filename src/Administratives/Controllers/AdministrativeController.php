@@ -12,7 +12,6 @@ use App\Administratives\Models\Administrative;
 use App\Administratives\Forms\AdministrativeType;
 use App\Administratives\Services\AdministrativeService;
 
-
 #[Route('/administratives', name: 'administratives.')]
 class AdministrativeController extends AbstractController
 {
