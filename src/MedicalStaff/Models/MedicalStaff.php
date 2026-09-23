@@ -2,12 +2,16 @@
 namespace App\MedicalStaff\Models;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use App\Users\Models\User;
 use App\Specialities\Models\Speciality;
 
+
 #[ORM\Entity]
 #[ORM\Table(name: 'medical_staff')]
+#[UniqueEntity('licenseNumber', message: 'Ya hay alguien con esa matrícula')]
 class MedicalStaff
 {
     #[ORM\Id]
@@ -15,53 +19,40 @@ class MedicalStaff
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\OneToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(
-        name: 'user_id',
-        referencedColumnName: 'id',
-        unique: true,
-        nullable: false,
-        onDelete: 'CASCADE'
-    )]
+    #[ORM\OneToOne(targetEntity: User::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', unique: true, nullable: false, onDelete: 'CASCADE')]
+    #[Assert\Valid]
     private User $user;
 
     #[ORM\ManyToOne(targetEntity: Speciality::class)]
-    #[ORM\JoinColumn(
-        name: 'speciality_id',
-        referencedColumnName: 'id',
-        nullable: true,
-        onDelete: 'SET NULL'
-    )]
-    public ?Speciality $speciality = null;
+    #[ORM\JoinColumn(name: 'speciality_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Speciality $speciality = null;
 
     #[ORM\Column(length: 20, unique: true, nullable: true)]
+    #[Assert\Length(max: 20, maxMessage: 'La matrícula no puede superar los {{ limit }} caracteres')]
     private ?string $licenseNumber = null;
 
-    public function __construct(User $user, ?Speciality $speciality, ?string $licenseNumber)
+    public function __construct()
     {
-        $this->user = $user;
-        $this->speciality = $speciality;
-        $this->licenseNumber = $licenseNumber !== null
-            ? self::normalizeLicenseNumber($licenseNumber)
-            : null;
+        $this->user = new User();
     }
 
-    public function id(): ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function user(): User
+    public function getUser(): User
     {
         return $this->user;
     }
 
-    public function speciality(): ?Speciality
+    public function getSpeciality(): ?Speciality
     {
         return $this->speciality;
     }
 
-    public function licenseNumber(): ?string
+    public function getLicenseNumber(): ?string
     {
         return $this->licenseNumber;
     }
@@ -78,14 +69,6 @@ class MedicalStaff
 
     public function setLicenseNumber(?string $licenseNumber): void
     {
-        $this->licenseNumber = $licenseNumber !== null
-            ? self::normalizeLicenseNumber($licenseNumber)
-            : null;
-    }
-
-    
-    private static function normalizeLicenseNumber(string $licenseNumber): string
-    {
-        return trim(strtoupper($licenseNumber));
+        $this->licenseNumber = $licenseNumber === null ? null : mb_strtoupper($licenseNumber);
     }
 }

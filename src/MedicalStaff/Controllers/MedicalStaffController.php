@@ -1,123 +1,84 @@
 <?php
 namespace App\MedicalStaff\Controllers;
 
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-use App\Specialities\Interfaces\ISpecialityService;
-
-use App\MedicalStaff\Interfaces\IMedicalStaffService;
-use App\MedicalStaff\Forms\MedicalStaffRegistrationType;
-use App\MedicalStaff\Forms\MedicalStaffUpdateType;
-
+use App\MedicalStaff\Forms\MedicalStaffType;
+use App\MedicalStaff\Models\MedicalStaff;
+use App\MedicalStaff\Services\MedicalStaffService;
 
 #[Route('/medicals', name: 'medicals.')]
 class MedicalStaffController extends AbstractController
 {
     public function __construct(
-        private readonly IMedicalStaffService $service,
-        private readonly ISpecialityService $specialityService,
+        private readonly MedicalStaffService $service,
     ) {
     }
 
     #[Route('', name: 'index', methods: ['GET'])]
+    #[IsGranted('read_medics')]
     public function index(): Response
     {
         return $this->render('medicals/index.html.twig', [
-            'medicalStaff' => $this->service->getAllMedicalStaff(),
+            'medicalStaff' => $this->service->findAll(),
         ]);
     }
 
     #[Route('/create', name: 'create', methods: ['GET', 'POST'])]
+    #[IsGranted('create_medics')]
     public function create(Request $request): Response
     {
-        $schema = $this->service->getMedicalStaffRegistrationSchema();
+        return $this->save($request, new MedicalStaff(), 'medicals/create.html.twig');
+    }
 
-        $form = $this->createForm(
-            MedicalStaffRegistrationType::class,
-            $schema,
-            $this->getFormOptions()
-        );
+    #[Route('/{id}/edit', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('update_medics')]
+    public function edit(Request $request, #[MapEntity(id: 'id')] MedicalStaff $medicalStaff): Response
+    {
+        return $this->save($request, $medicalStaff, 'medicals/edit.html.twig');
+    }
 
+    #[Route('/{id}/{status}', name: 'status', requirements: ['id' => '\d+', 'status' => 'activate|deactivate'], methods: ['POST'])]
+    #[IsGranted('update_medics')]
+    public function status(Request $request, #[MapEntity(id: 'id')] MedicalStaff $medicalStaff, string $status): Response
+    {
+        if (!$this->isCsrfTokenValid('status-medicalstaff-' . $medicalStaff->getId(), $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->service->changeStatus($medicalStaff, $status === 'activate');
+
+        $this->addFlash('success', $status === 'activate'
+            ? 'Profesional reactivado.'
+            : 'Profesional dado de baja. Sus datos se conservan.');
+
+        return $this->redirectToRoute('medicals.index');
+    }
+
+    private function save(Request $request, MedicalStaff $medicalStaff, string $template): Response
+    {
+        $isNew = $medicalStaff->getId() === null;
+
+        $form = $this->createForm(MedicalStaffType::class, $medicalStaff, [
+            'require_password' => $isNew,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->service->register($schema);
+            $this->service->save($medicalStaff, $form->get('user')->get('plainPassword')->getData());
+
+            $this->addFlash('success', $isNew
+                ? 'Profesional registrado.'
+                : 'Los cambios del profesional se guardaron.');
+
             return $this->redirectToRoute('medicals.index');
         }
 
-        return $this->render(
-            'medicals/create.html.twig',
-            ['form' => $form->createView()],
-            $this->getResponse($form)
-        );
-    }
-
-    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
-    public function edit(int $id, Request $request): Response
-    {
-        $schema = $this->service->getMedicalStaffUpdateSchemaById($id);
-
-        $form = $this->createForm(
-            MedicalStaffUpdateType::class,
-            $schema,
-            $this->getFormOptions()
-        );
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->service->update($id, $schema);
-            return $this->redirectToRoute('medicals.index', ['id' => $id]);
-        }
-
-        return $this->render('medicals/edit.html.twig', [
-            'form' => $form->createView(),
-            'id' => $id
-        ], $this->getResponse($form));
-    }
-
-    #[Route('/{id}/activate', name: 'activate', methods: ['POST'])]
-    public function activate(int $id, Request $request): Response // <--- Agregamos Request
-    {
-        if (!$this->isCsrfTokenValid('status-medicalstaff-' . $id, $request->request->get('_token'))) {
-            return new Response('Invalid CSRF token', Response::HTTP_FORBIDDEN);
-        }
-
-        $this->service->activate($id);
-        return $this->redirectToRoute('medicals.index', ['id' => $id]);
-    }
-
-    #[Route('/{id}/deactivate', name: 'deactivate', methods: ['POST'])]
-    public function deactivate(int $id, Request $request): Response // <--- Agregamos Request
-    {
-        if (!$this->isCsrfTokenValid('status-medicalstaff-' . $id, $request->request->get('_token'))) {
-            return new Response('Invalid CSRF token', Response::HTTP_FORBIDDEN);
-        }
-
-        $this->service->deactivate($id);
-        return $this->redirectToRoute('medicals.index', ['id' => $id]);
-    }
-
-    /**
-     * Get form options with positions and specialities
-     */
-    private function getFormOptions(): array
-    {
-        return [
-            'positions' => $this->service->getPositions(),
-            'specialities' => $this->specialityService->getAllSpecialities(),
-        ];
-    }
-
-    /**
-     * Get response with appropriate status code for form validation
-     */
-    private function getResponse($form): Response
-    {
-        $status = ($form->isSubmitted() && !$form->isValid()) ? 422 : 200;
-        return new Response(status: $status);
+        return $this->render($template, ['form' => $form]);
     }
 }
