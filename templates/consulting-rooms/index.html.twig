@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Consultorios · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Consultorios',
+            subtitle: 'Los consultorios de la clínica. Se asignan en los horarios de cada médico.',
+            actions: [{path: path('consulting-rooms.create'), label: 'Nuevo consultorio', icon: 'bi-plus-lg', permission: 'create_consulting_rooms'}]
+        } %}
+
+        {% if rooms is empty %}
+
+            {% include '_components/_empty_state.html.twig' with {
+                icon: 'bi-door-open',
+                title: 'Todavía no hay consultorios',
+                text: 'Cargá el primero para poder asignarlo en los horarios de los médicos.',
+                action: {path: path('consulting-rooms.create'), label: 'Crear el primero', permission: 'create_consulting_rooms'},
+                denied_text: 'Esperá a que alguien con permiso para crear consultorios los cargue.'
+            } %}
+
+        {% else %}
+
+            <div class="card">
+                <div class="card-header py-3">
+                    <h2 class="h6 mb-1">Listado de consultorios</h2>
+                    <p class="vitalis-hint mb-0">
+                        {{ rooms|length == 1 ? '1 consultorio registrado' : rooms|length ~ ' consultorios registrados' }}
+                    </p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4 w-100">Nombre</th>
+                                <th class="text-nowrap">Estado</th>
+                                {% if is_granted('update_consulting_rooms') %}
+                                    <th class="text-end pe-4 text-nowrap">Acciones</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for room in rooms %}
+                                {% set active = room.isActive %}
+                                {% set confirmar = active
+                                    ? 'Se va a desactivar "' ~ room.name ~ '". No se va a poder asignar en horarios nuevos.'
+                                    : 'Se va a reactivar "' ~ room.name ~ '".' %}
+
+                                <tr>
+                                    <td class="ps-4 fw-semibold">{{ room.name }}</td>
+
+                                    <td class="text-nowrap">
+                                        {% include '_components/_status_badge.html.twig' with {active: active, off: 'Inactivo'} %}
+                                    </td>
+
+                                    {% if is_granted('update_consulting_rooms') %}
+                                        <td class="text-end pe-4">
+                                            <div class="d-inline-flex gap-2">
+
+                                                <a
+                                                    class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                                                    href="{{ path('consulting-rooms.edit', {id: room.id}) }}"
+                                                    aria-label="Editar {{ room.name }}"
+                                                >
+                                                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                                                    <span class="d-none d-sm-inline">Editar</span>
+                                                </a>
+
+                                                <form
+                                                    method="post"
+                                                    class="d-inline"
+                                                    action="{{ path('consulting-rooms.status', {id: room.id, status: active ? 'deactivate' : 'activate'}) }}"
+                                                    onsubmit="return confirm({{ confirmar|json_encode }});"
+                                                >
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('status-consulting-room-' ~ room.id) }}">
+
+                                                    {% if active %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" aria-label="Desactivar {{ room.name }}">
+                                                            <i class="bi bi-slash-circle" aria-hidden="true"></i>
+                                                            <span class="d-none d-sm-inline">Desactivar</span>
+                                                        </button>
+                                                    {% else %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1" aria-label="Reactivar {{ room.name }}">
+                                                            <i class="bi bi-check-circle" aria-hidden="true"></i>
+                                                            <span class="d-none d-sm-inline">Reactivar</span>
+                                                        </button>
+                                                    {% endif %}
+                                                </form>
+
+                                            </div>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% endif %}
+    </div>
+{% endblock %}

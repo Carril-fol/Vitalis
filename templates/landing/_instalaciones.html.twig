@@ -1,0 +1,65 @@
+{% set facilities = [
+    {
+        title: 'Consultorios',
+        icon: 'bi-person-workspace',
+        image: 'consult.webp',
+        text: '24 consultorios equipados, climatizados y con acceso para sillas de ruedas.'
+    },
+    {
+        title: 'Laboratorio',
+        icon: 'bi-eyedropper',
+        image: 'lab.webp',
+        text: 'Extracciones sin turno de 7 a 10 h y resultados en 24 a 48 h.'
+    },
+    {
+        title: 'Diagnóstico por imágenes',
+        icon: 'bi-camera',
+        image: 'diagnostic-images.webp',
+        text: 'Rayos X, ecografía y mamografía digital en el mismo edificio.'
+    }
+] %}
+
+<section id="instalaciones" class="py-5 min-vh-100 d-flex flex-column justify-content-center" aria-labelledby="instalaciones-title">
+    <div class="container py-lg-4">
+        <div class="row justify-content-center text-center mb-5">
+            <div class="col-lg-8">
+                <span class="badge rounded-pill text-bg-primary px-3 py-2 mb-3">
+                    Instalaciones y tecnología
+                </span>
+                <h2 id="instalaciones-title" class="display-6 fw-bold mb-3">
+                    Equipamiento para cuidarte mejor
+                </h2>
+                <p class="lead text-body-secondary mb-0">
+                    Espacios pensados para ofrecerte una atención cómoda, segura y de calidad.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for facility in facilities %}
+                <div class="col-md-6 col-lg-4">
+                    <article class="card h-100 border-0 shadow-sm overflow-hidden">
+                        <div class="ratio ratio-16x9 bg-primary-subtle">
+                            <img
+                                src="{{ asset('images/landing/sections/installations/' ~ facility.image) }}"
+                                class="card-img-top object-fit-cover"
+                                alt="{{ facility.title }}"
+                                loading="lazy"
+                            >
+                        </div>
+
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white flex-shrink-0" style="width: 3.5rem; height: 3.5rem;" aria-hidden="true">
+                                    <i class="bi {{ facility.icon }} fs-4"></i>
+                                </span>
+                                <h3 class="h5 fw-bold mb-0">{{ facility.title }}</h3>
+                            </div>
+                            <p class="text-body-secondary mb-0">{{ facility.text }}</p>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

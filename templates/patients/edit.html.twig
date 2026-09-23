@@ -1,22 +1,22 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Editar personal médico · Vitalis{% endblock %}
+{% block title %}Editar paciente · Vitalis{% endblock %}
 
 {% block body %}
     {% set user = form.vars.value.user %}
 
     <div class="container-fluid px-0">
         {% include '_components/_page_header.html.twig' with {
-            title: 'Editar personal médico',
+            title: 'Editar paciente',
             subtitle: user.fullName ~ ' · DNI ' ~ user.dni ~ ' · ' ~ user.email,
-            actions: [{path: path('medicals.index'), label: 'Volver a personal médico', icon: 'bi-arrow-left', class: 'btn btn-link px-0'}]
+            actions: [{path: path('patients.index'), label: 'Volver a pacientes', icon: 'bi-arrow-left', class: 'btn btn-link px-0'}]
         } %}
 
-        {% include '_components/_form_errors.html.twig' with {title: 'No se pudo guardar el legajo'} %}
+        {% include '_components/_form_errors.html.twig' with {title: 'No se pudo guardar el paciente'} %}
 
         <div class="row">
             <div class="col-12 col-xl-8">
-                {% include 'medicals/_form.html.twig' with {
+                {% include 'patients/_form.html.twig' with {
                     is_edit: true,
                     submit_label: 'Guardar cambios',
                     loading_label: 'Guardando…'

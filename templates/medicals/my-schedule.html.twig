@@ -1,0 +1,184 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Mis horarios · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Mis horarios',
+            subtitle: 'Cuándo atendés y cuándo no. Las franjas las define el centro; las ausencias las cargás vos.'
+        } %}
+
+        <div class="row g-4">
+
+            <div class="col-12 col-xl-7">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-card-icon">
+                            <i class="bi bi-calendar-week" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h2 class="h6 mb-0">Horarios de atención</h2>
+                            <p class="vitalis-hint mb-0">
+                                {{ medic.speciality is null ? 'Sin especialidad' : medic.speciality.name }} ·
+                                cada franja se divide en turnos de la duración indicada.
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if schedules is empty %}
+                        <div class="card-body">
+                            <p class="vitalis-hint mb-0">
+                                Todavía no tenés horarios cargados, así que no vas a recibir turnos.
+                                Los carga administración.
+                            </p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Día</th>
+                                        <th class="text-nowrap">Horario</th>
+                                        <th class="w-100">Consultorio</th>
+                                        <th class="text-nowrap pe-4">Turnos de</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for schedule in schedules %}
+                                        <tr>
+                                            <td class="ps-4 fw-semibold">{{ schedule.weekdayName }}</td>
+                                            <td class="text-nowrap">{{ schedule.startTime|date('H:i') }} a {{ schedule.endTime|date('H:i') }}</td>
+                                            <td>{{ schedule.consultingRoom.name }}</td>
+                                            <td class="text-nowrap pe-4">{{ schedule.slotMinutes }} min</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+
+                    <div class="card-body border-top">
+                        <h3 class="h6 mb-2">Feriados del centro</h3>
+
+                        {% if holidays is empty %}
+                            <p class="vitalis-hint mb-0">No hay feriados cargados.</p>
+                        {% else %}
+                            <ul class="list-unstyled mb-0">
+                                {% for holiday in holidays %}
+                                    <li class="d-flex justify-content-between gap-3 py-1 border-bottom">
+                                        <span>{{ holiday.reason|default('Feriado') }}</span>
+                                        <span class="vitalis-hint text-nowrap">
+                                            {{ holiday.startsAt|date('d/m/Y') }}
+                                            {% if holiday.endsAt|date('d/m/Y') != holiday.startsAt|date('d/m/Y') %}
+                                                a {{ holiday.endsAt|date('d/m/Y') }}
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-card-icon">
+                            <i class="bi bi-calendar-x" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h2 class="h6 mb-0">Mis ausencias</h2>
+                            <p class="vitalis-hint mb-0">Vacaciones, licencias o un día puntual.</p>
+                        </div>
+                    </div>
+
+                    {% if absences is empty %}
+                        <div class="card-body">
+                            <p class="vitalis-hint mb-0">No tenés ausencias cargadas.</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Período</th>
+                                        <th class="w-100">Motivo</th>
+                                        <th class="pe-4"><span class="visually-hidden">Acciones</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for absence in absences %}
+                                        <tr>
+                                            <td class="ps-4 text-nowrap">
+                                                <span class="d-block">{{ absence.startsAt|date('d/m/Y H:i') }}</span>
+                                                <span class="vitalis-hint">a {{ absence.endsAt|date('d/m/Y H:i') }}</span>
+                                            </td>
+                                            <td>
+                                                {% if absence.reason is empty %}
+                                                    <span class="vitalis-hint">—</span>
+                                                {% else %}
+                                                    {{ absence.reason }}
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                {% set confirmar = 'Se va a quitar esta ausencia y esos horarios vuelven a ofrecerse.' %}
+                                                <form
+                                                    method="post"
+                                                    class="d-inline"
+                                                    action="{{ path('dashboard.medic.absence.delete', {id: absence.id}) }}"
+                                                    onsubmit="return confirm({{ confirmar|json_encode }});"
+                                                >
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete-absence-' ~ absence.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Quitar ausencia del {{ absence.startsAt|date('d/m/Y') }}">
+                                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+
+                    <div class="card-body border-top">
+                        <h3 class="h6 mb-3">Cargar ausencia</h3>
+
+                        {{ form_start(form, {attr: {novalidate: 'novalidate', 'data-vitalis-loading': true}}) }}
+                        {{ form_errors(form) }}
+
+                        <div class="row">
+                            <div class="col-12 col-sm-6 col-xl-12">{{ form_row(form.startsAt) }}</div>
+                            <div class="col-12 col-sm-6 col-xl-12">{{ form_row(form.endsAt) }}</div>
+                            <div class="col-12">{{ form_row(form.reason, {attr: {placeholder: 'Ej. Vacaciones', maxlength: 150, autocomplete: 'off'}}) }}</div>
+                        </div>
+
+                        <p class="vitalis-hint">
+                            Los turnos ya dados adentro del rango no se cancelan solos:
+                            si hay, te avisamos para que recepción los reprograme.
+                        </p>
+
+                        <div class="d-grid d-sm-flex justify-content-sm-end">
+                            <button
+                                type="submit"
+                                class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2"
+                                data-loading-label="Cargando…"
+                            >
+                                <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                                <span class="label">Cargar ausencia</span>
+                            </button>
+                        </div>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

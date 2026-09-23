@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vitalis{% endblock %}
+
+{% block layout %}
+<div class="vitalis-landing">
+    {{ include('landing/_header.html.twig') }}
+    <main>
+        {{ include('landing/_hero.html.twig') }}
+        {{ include('landing/_especialidades.html.twig') }}
+        {{ include('landing/_por-que-elegirnos.html.twig') }}
+        {{ include('landing/_turnos.html.twig') }}
+        {{ include('landing/_obras-sociales.html.twig') }}
+        {{ include('landing/_instalaciones.html.twig') }}
+        {{ include('landing/_testimonios.html.twig') }}
+        {{ include('landing/_nosotros.html.twig') }}
+        {{ include('landing/_faq.html.twig') }}
+        {{ include('landing/_contacto.html.twig') }}
+    </main>
+    {{ include('landing/_footer.html.twig') }}
+</div>
+{% endblock %}

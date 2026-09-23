@@ -1,0 +1,9 @@
+{% if not form.vars.valid %}
+    <div class="alert alert-danger d-flex align-items-start gap-2 mb-4" role="alert">
+        <i class="bi bi-exclamation-circle-fill mt-1 flex-shrink-0" aria-hidden="true"></i>
+        <div>
+            <strong class="d-block">{{ title }}</strong>
+            {{ text|default('Revisá los campos marcados en el formulario.') }}
+        </div>
+    </div>
+{% endif %}

@@ -1,0 +1,16 @@
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="bi {{ icon }} text-primary display-5 d-block mb-3" aria-hidden="true"></i>
+        <h2 class="h5 mb-2">{{ title }}</h2>
+
+        {% if action is defined and (action.permission is not defined or is_granted(action.permission)) %}
+            <p class="vitalis-hint mb-4">{{ text }}</p>
+            <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{{ action.path }}">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                {{ action.label }}
+            </a>
+        {% else %}
+            <p class="vitalis-hint mb-0">{{ denied_text|default('Esperá a que alguien con permiso lo cargue.') }}</p>
+        {% endif %}
+    </div>
+</div>

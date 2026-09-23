@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Turnos · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+            <div>
+                <h1 class="h3 mb-2">{{ medic ? 'Mis turnos' : 'Turnos' }}</h1>
+                <p class="vitalis-hint mb-0">
+                    {% if medic %}
+                        Tus turnos, del más nuevo al más viejo.
+                    {% else %}
+                        Los turnos del centro, del más nuevo al más viejo.
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if is_granted('create_turns') %}
+                <a class="btn btn-primary d-inline-flex align-items-center gap-2 flex-shrink-0" href="{{ path('turns.create') }}">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    Sacar turno
+                </a>
+            {% endif %}
+        </div>
+
+        {% if turns.totalCount == 0 %}
+
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-calendar-check text-primary display-5 d-block mb-3" aria-hidden="true"></i>
+                    <h2 class="h5 mb-2">Todavía no hay turnos</h2>
+                    {% if is_granted('create_turns') %}
+                        <p class="vitalis-hint mb-4">
+                            Sacá el primero eligiendo paciente, especialidad y día.
+                        </p>
+                        <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{{ path('turns.create') }}">
+                            <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                            Sacar turno
+                        </a>
+                    {% else %}
+                        <p class="vitalis-hint mb-0">
+                            Esperá a que alguien con permiso para dar turnos lo haga.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+        {% else %}
+
+            <div class="card">
+                <div class="card-header py-3">
+                    <h2 class="h6 mb-1">Listado de turnos</h2>
+                    <p class="vitalis-hint mb-0">
+                        {{ turns.totalCount == 1 ? '1 turno registrado' : turns.totalCount ~ ' turnos registrados' }}
+                    </p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4 text-nowrap">Fecha y hora</th>
+                                <th class="w-100">Paciente</th>
+                                <th class="text-nowrap">Profesional</th>
+                                <th class="text-nowrap">Consultorio</th>
+                                <th class="text-nowrap">Estado</th>
+                                {% if is_granted('update_turns') %}
+                                    <th class="text-end pe-4 text-nowrap">Acciones</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for turn in turns %}
+                                <tr>
+                                    <td class="ps-4 fw-semibold text-nowrap">
+                                        {{ turn.startsAt|date('d/m/Y H:i') }}
+                                    </td>
+
+                                    <td>
+                                        {% if medic %}
+                                            <a class="fw-medium text-decoration-none" href="{{ path('consultations.show', {turn: turn.id}) }}">
+                                                {{ turn.patient.user.fullName }}
+                                            </a>
+                                            {% if turn.id in noteIds %}
+                                                <i class="bi bi-journal-check text-success ms-2" title="Tiene nota" aria-hidden="true"></i>
+                                                <span class="visually-hidden">Tiene nota</span>
+                                            {% endif %}
+                                        {% else %}
+                                            {{ turn.patient.user.fullName }}
+                                        {% endif %}
+                                        <div class="vitalis-hint">DNI {{ turn.patient.user.dni }}</div>
+                                    </td>
+
+                                    <td class="text-nowrap">{{ turn.medicalStaff.user.fullName }}</td>
+                                    <td class="text-nowrap">{{ turn.consultingRoom.name }}</td>
+
+                                    <td>
+                                        {{ include('turns/_badge.html.twig', {status: turn.status}) }}
+
+                                        {% if turn.isCancelled and turn.cancellationReason %}
+                                            <div class="vitalis-hint">{{ turn.cancellationReason }}</div>
+                                        {% endif %}
+                                    </td>
+
+                                    {% if is_granted('update_turns') %}
+                                        <td class="text-end pe-4">
+                                            {% if turn.status.value in ['booked', 'checked_in'] %}
+                                                {% set is_today = turn.startsAt|date('Y-m-d') == "now"|date('Y-m-d') %}
+                                                <div class="d-inline-flex gap-2">
+
+                                                    {% if is_today %}
+                                                    {% if turn.status.value == 'booked' %}
+                                                        {{ include('turns/_status_button.html.twig', {
+                                                        turn: turn, page: turns.pageNumber,
+                                                        status: 'checked_in', etiqueta: 'Llegó',
+                                                        icono: 'bi-box-arrow-in-right', variante: 'btn-outline-primary',
+                                                    }) }}
+                                                    {% endif %}
+
+                                                    {{ include('turns/_status_button.html.twig', {
+                                                    turn: turn, page: turns.pageNumber,
+                                                    status: 'attended', etiqueta: 'Atendido',
+                                                    icono: 'bi-check-lg', variante: 'btn-outline-success',
+                                                }) }}
+
+                                                    {{ include('turns/_status_button.html.twig', {
+                                                    turn: turn, page: turns.pageNumber,
+                                                    status: 'no_show', etiqueta: 'No vino',
+                                                    icono: 'bi-person-x', variante: 'btn-outline-warning',
+                                                }) }}
+                                                    {% endif %}
+
+                                                    {% set confirmar = 'Se va a cancelar el turno de '
+                                                    ~ turn.patient.user.fullName
+                                                    ~ ' del ' ~ turn.startsAt|date('d/m/Y H:i')
+                                                    ~ '. El horario vuelve a quedar disponible.' %}
+
+                                                    <form
+                                                        method="post"
+                                                        class="d-inline"
+                                                        action="{{ path('turns.cancel', {id: turn.id, page: turns.pageNumber}) }}"
+                                                        onsubmit="return confirm({{ confirmar|json_encode }});"
+                                                    >
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('cancel-turn-' ~ turn.id) }}">
+
+                                                        <button
+                                                            type="submit"
+                                                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+                                                            aria-label="Cancelar turno de {{ turn.patient.user.fullName }}"
+                                                        >
+                                                            <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                                            <span class="d-none d-xl-inline">Cancelar</span>
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if turns.hasToPaginate %}
+                    <div class="card-footer py-3">
+                        {{ include('_pagination.html.twig', {page: turns, route: 'turns.index'}) }}
+                    </div>
+                {% endif %}
+            </div>
+
+        {% endif %}
+
+    </div>
+{% endblock %}

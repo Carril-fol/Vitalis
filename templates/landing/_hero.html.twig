@@ -1,0 +1,44 @@
+{% set slides = [
+    { image: 'hero-1.webp', title: 'Tu salud, cerca y sin demoras', text: 'Atención médica integral con turnos coordinados y profesionales que te conocen.' },
+    { image: 'hero-2.webp', title: 'Un equipo que te acompaña', text: 'Médicos de distintas especialidades que siguen tu historia de principio a fin.' },
+    { image: 'hero-3.webp', title: 'Tus estudios, en un solo lugar', text: 'Laboratorio y diagnóstico por imágenes sin salir del consultorio.' },
+] %}
+
+<section id="hero" class="carousel slide carousel-fade" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        {% for slide in slides %}
+            <button type="button" data-bs-target="#hero" data-bs-slide-to="{{ loop.index0 }}"
+                    {% if loop.first %}class="active" aria-current="true"{% endif %}
+                    aria-label="Slide {{ loop.index }}"></button>
+        {% endfor %}
+    </div>
+
+    <div class="carousel-inner">
+        {% for slide in slides %}
+            <div class="carousel-item vh-100 {{ loop.first ? 'active' }}">
+                <img src="{{ asset('images/landing/sections/' ~ slide.image) }}" alt="" class="w-100 h-100 object-fit-cover">
+                <div class="landing-slide-layer">
+                    <div class="container">
+                        <div class="landing-slide-copy">
+                            <h2 class="display-5 fw-semibold text-white mb-3">{{ slide.title }}</h2>
+                            <p class="lead text-white-50 mb-4">{{ slide.text }}</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="#turnos" class="btn btn-primary btn-lg">Pedir turno</a>
+                                <a href="#especialidades" class="btn btn-outline-light btn-lg">Ver especialidades</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#hero" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#hero" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+    </button>
+</section>

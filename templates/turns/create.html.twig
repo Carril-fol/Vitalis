@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sacar turno · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+            <div>
+                <h1 class="h3 mb-2">Sacar turno</h1>
+                <p class="vitalis-hint mb-0">
+                    Elegí el paciente, la especialidad y el día. El sistema busca qué
+                    profesional tiene lugar.
+                </p>
+            </div>
+
+            <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 flex-shrink-0" href="{{ path('turns.index') }}">
+                <i class="bi bi-list-ul" aria-hidden="true"></i>
+                Ver turnos
+            </a>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                {{ form_start(form, { attr: { class: 'row g-3 align-items-start' } }) }}
+                    <div class="col-md-4">{{ form_row(form.patient) }}</div>
+                    <div class="col-md-4">{{ form_row(form.speciality) }}</div>
+                    <div class="col-md-4">{{ form_row(form.reason) }}</div>
+
+                    <div class="col-12">
+                        <button class="btn btn-primary d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            Buscar horarios
+                        </button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        {% if search %}
+            {% if slots is empty %}
+
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-calendar-x text-primary display-5 d-block mb-3" aria-hidden="true"></i>
+                        <h2 class="h5 mb-2">No hay horarios disponibles</h2>
+                        <p class="vitalis-hint mb-0">
+                            No hay lugar en {{ search.speciality.name }} en los próximos
+                            dos meses. Revisá que haya horarios cargados para esa
+                            especialidad en Personal Médico.
+                        </p>
+                    </div>
+                </div>
+
+            {% else %}
+
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h2 class="h6 mb-1">Horarios más próximos</h2>
+                        <p class="vitalis-hint mb-0">
+                            {{ search.speciality.name }}
+                            &middot;
+                            {{ slots|length == 1 ? '1 horario libre' : slots|length ~ ' horarios libres' }}
+                        </p>
+                    </div>
+
+                    {% set dias = constant('App\\MedicalStaff\\Models\\MedicalSchedule::WEEKDAYS') %}
+
+                    <div class="list-group list-group-flush">
+                        {% set ultimoDia = null %}
+                        {% for slot in slots %}
+
+                            {% if slot.startsAt|date('Y-m-d') != ultimoDia %}
+                                {% set ultimoDia = slot.startsAt|date('Y-m-d') %}
+                                <div class="list-group-item bg-body-secondary py-2 fw-semibold">
+                                    {{ dias[slot.startsAt|date('N')] }} {{ slot.startsAt|date('d/m') }}
+                                </div>
+                            {% endif %}
+
+                            <div class="list-group-item d-flex justify-content-between align-items-center gap-3">
+
+                                <div>
+                                    <span class="fw-semibold">{{ slot.startsAt|date('H:i') }}</span>
+                                    <span class="vitalis-hint">a {{ slot.endsAt|date('H:i') }}</span>
+                                    <div class="vitalis-hint">
+                                        {{ slot.medic.user.fullName }} &mdash; {{ slot.room.name }}
+                                    </div>
+                                </div>
+
+                                <form
+                                    method="post"
+                                    action="{{ path('turns.book', {
+                                        patient:  search.patient.id,
+                                        medic:    slot.medic.id,
+                                        startsAt: slot.startsAt|date('Y-m-d\\TH:i'),
+                                    }) }}"
+                                >
+                                    <input type="hidden" name="_token" value="{{ csrf_token('book-turn') }}">
+                                    <input type="hidden" name="reason" value="{{ search.reason }}">
+
+                                    <button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-check-lg" aria-hidden="true"></i>
+                                        Reservar
+                                    </button>
+                                </form>
+
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% endif %}
+        {% endif %}
+
+    </div>
+{% endblock %}

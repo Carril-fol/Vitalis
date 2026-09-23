@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Editar mi perfil · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Editar mis datos',
+            subtitle: 'El DNI, el email y el puesto los cambia administración.',
+            actions: [{
+                path: path('profile.show'),
+                label: 'Volver a mi perfil',
+                icon: 'bi-arrow-left',
+                class: 'btn btn-link px-0'
+            }]
+        } %}
+
+        <div class="row">
+            <div class="col-12 col-lg-8 col-xl-6">
+                <div class="card">
+                    <div class="card-body">
+
+                        {{ form_start(form, {attr: {novalidate: 'novalidate', 'data-vitalis-loading': true}}) }}
+                        {{ form_errors(form) }}
+
+                        <div class="row">
+                            <div class="col-12 col-sm-6">{{ form_row(form.firstName) }}</div>
+                            <div class="col-12 col-sm-6">{{ form_row(form.lastName) }}</div>
+                            <div class="col-12 col-sm-6">{{ form_row(form.phone) }}</div>
+                            <div class="col-12 col-sm-6">{{ form_row(form.city) }}</div>
+                            <div class="col-12">{{ form_row(form.address) }}</div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h2 class="h6 mb-1">Cambiar contraseña</h2>
+                        <p class="vitalis-hint">
+                            Dejá los tres campos en blanco si no querés cambiarla.
+                        </p>
+
+                        <div class="row">
+                            <div class="col-12">{{ form_row(form.currentPassword, {attr: {autocomplete: 'current-password'}}) }}</div>
+                            <div class="col-12 col-sm-6">{{ form_row(form.newPassword.first, {attr: {autocomplete: 'new-password'}}) }}</div>
+                            <div class="col-12 col-sm-6">{{ form_row(form.newPassword.second, {attr: {autocomplete: 'new-password'}}) }}</div>
+                        </div>
+
+                        {% include '_components/_form_actions.html.twig' with {
+                            submit_label: 'Guardar cambios',
+                            loading_label: 'Guardando…',
+                            cancel_path: path('profile.show')
+                        } %}
+
+                        {{ form_end(form) }}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

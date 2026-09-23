@@ -1,0 +1,23 @@
+{% set items = [
+    {route: 'dashboard',         path: path('dashboard.index'),          icon: 'bi-clipboard',           label: 'Dashboard'},
+    {route: 'turns',             path: path('turns.index'),              icon: 'bi-clock-history',       label: 'Turnos',          permission: 'read_turns'},
+    {route: 'roles',             path: path('roles.index'),              icon: 'bi-key',                 label: 'Roles',           permission: 'read_roles'},
+    {route: 'specialities',      path: path('specialities.index'),       icon: 'bi-hospital',            label: 'Especialidades',  permission: 'read_specialities'},
+    {route: 'administratives',   path: path('administratives.index'),    icon: 'bi-file-earmark-text',   label: 'Administrativos', permission: 'read_administratives'},
+    {route: 'medicals',          path: path('medicals.index'),           icon: 'bi-clipboard-pulse',     label: 'Personal médico', permission: 'read_medics'},
+    {route: 'patients',          path: path('patients.index'),           icon: 'bi-people',              label: 'Pacientes',       permission: 'read_patients'},
+    {route: 'health-insurances', path: path('health-insurances.index'),  icon: 'bi-credit-card',         label: 'Obras sociales',  permission: 'read_health_insurances'},
+    {route: 'consulting-rooms',  path: path('consulting-rooms.index'),   icon: 'bi-door-closed',         label: 'Consultorios',    permission: 'read_consulting_rooms'},
+] %}
+
+{% for item in items %}
+    {% if item.permission is not defined or is_granted(item.permission) %}
+        <a
+            class="nav-link d-flex align-items-center gap-2 px-4 py-3 {{ app.request.get('_route') starts with item.route ? 'active' }}"
+            href="{{ item.path }}"
+        >
+            <i class="bi {{ item.icon }} fs-5" aria-hidden="true"></i>
+            {{ item.label }}
+        </a>
+    {% endif %}
+{% endfor %}

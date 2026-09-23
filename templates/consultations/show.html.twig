@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{% block title %}Consulta · Vitalis{% endblock %}
+
+{% block body %}
+    {% set patient = turn.patient.user %}
+
+    <div class="container-fluid px-0">
+
+        {% include '_components/_page_header.html.twig' with {
+            title: patient.fullName|title,
+            subtitle: turn.startsAt|date('d/m/Y') ~ ' a las ' ~ turn.startsAt|date('H:i') ~ ' · ' ~ turn.consultingRoom.name,
+            actions: [{
+                path: path('dashboard.medic'),
+                label: 'Volver a mi agenda',
+                icon: 'bi-arrow-left',
+                class: 'btn btn-link px-0'
+            }]
+        } %}
+
+        <div class="row g-4">
+
+            <div class="col-12 col-xl-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-card-icon">
+                            <i class="bi bi-person-vcard" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h2 class="h6 mb-0">El paciente</h2>
+                            <p class="vitalis-hint mb-0">Datos de contacto y cobertura.</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <dl class="row mb-0 small">
+                            <dt class="col-5 fw-medium">DNI</dt>
+                            <dd class="col-7">{{ patient.dni }}</dd>
+
+                            <dt class="col-5 fw-medium">Nacimiento</dt>
+                            <dd class="col-7">{{ patient.birthDate|date('d/m/Y') }}</dd>
+
+                            <dt class="col-5 fw-medium">Teléfono</dt>
+                            <dd class="col-7">{{ patient.phone|default('—') }}</dd>
+
+                            <dt class="col-5 fw-medium">Obra social</dt>
+                            <dd class="col-7">
+                                {% if turn.patient.healthInsurance is null %}
+                                    <span class="vitalis-hint">Particular</span>
+                                {% else %}
+                                    {{ turn.patient.healthInsurance.name }}
+                                    {% if turn.patient.memberNumber %}
+                                        <div class="vitalis-hint">Afiliado {{ turn.patient.memberNumber }}</div>
+                                    {% endif %}
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-5 fw-medium">Estado</dt>
+                            <dd class="col-7 mb-0">{{ include('turns/_badge.html.twig', {status: turn.status}) }}</dd>
+                        </dl>
+
+                        {% if turn.reason %}
+                            <hr>
+                            <p class="vitalis-hint mb-1">Motivo de la visita</p>
+                            <p class="mb-0">{{ turn.reason }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-8">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-card-icon">
+                            <i class="bi bi-journal-medical" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h2 class="h6 mb-0">Nota de la consulta</h2>
+                            <p class="vitalis-hint mb-0">
+                                {% if note.id is null %}
+                                    Todavía no hay nota para este turno.
+                                {% else %}
+                                    Escrita por {{ note.createdBy.fullName|title }}
+                                    el {{ note.createdAt|date('d/m/Y \\a \\l\\a\\s H:i') }}{% if note.wasEdited %},
+                                        corregida el {{ note.updatedAt|date('d/m/Y \\a \\l\\a\\s H:i') }}{% endif %}.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        {% if canWrite %}
+
+                            {{ form_start(form, {attr: {novalidate: 'novalidate', 'data-vitalis-loading': true}}) }}
+                            {{ form_errors(form) }}
+                            {{ form_row(form.content) }}
+
+                            <div class="d-grid d-sm-flex justify-content-sm-end">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2"
+                                    data-loading-label="Guardando…"
+                                >
+                                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                                    <span class="label">{{ note.id is null ? 'Guardar nota' : 'Guardar cambios' }}</span>
+                                </button>
+                            </div>
+
+                            {{ form_end(form) }}
+
+                        {% else %}
+
+                            <div class="alert alert-warning d-flex align-items-start gap-2 mb-0" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill mt-1 flex-shrink-0" aria-hidden="true"></i>
+                                <div>
+                                    <strong class="d-block">Este turno no admite nota</strong>
+                                    Se escribe cuando el paciente está en sala de espera o ya fue atendido.
+                                    Hoy está como <em>{{ turn.status.value == 'booked' ? 'reservado' : (turn.status.value == 'no_show' ? 'no vino' : 'cancelado') }}</em>.
+                                </div>
+                            </div>
+
+                            {% if note.id is not null %}
+                                <p class="mb-0 mt-3" style="white-space: pre-line;">{{ note.content }}</p>
+                            {% endif %}
+
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-card-icon">
+                            <i class="bi bi-clock-history" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h2 class="h6 mb-0">Consultas anteriores</h2>
+                            <p class="vitalis-hint mb-0">Lo que anotaron los profesionales que lo atendieron antes.</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        {% for past in history %}
+                            <article class="{{ not loop.last ? 'pb-3 mb-3 border-bottom' }}">
+                                <p class="vitalis-hint mb-1">
+                                    {{ past.turn.startsAt|date('d/m/Y H:i') }}
+                                    · {{ past.createdBy.fullName|title }}
+                                    {% if past.turn.medicalStaff.speciality %}
+                                        · {{ past.turn.medicalStaff.speciality.name }}
+                                    {% endif %}
+                                </p>
+                                <p class="mb-0" style="white-space: pre-line;">{{ past.content }}</p>
+                            </article>
+                        {% else %}
+                            <p class="vitalis-hint mb-0">Primera consulta registrada: no hay notas anteriores.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

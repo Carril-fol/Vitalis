@@ -1,46 +1,126 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
-    <title>{% block title %}Vitalis{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
-    {% block javascripts %}
-        {{ importmap('app') }}
-    {% endblock %}
-</head>
-<body class="bg-body-tertiary">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+        <title>{% block title %}Vitalis{% endblock %}</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+        {% block javascripts %}
+            {{ importmap('app') }}
+        {% endblock %}
+    </head>
+    <body>
 
-    {% block layout %}
-    <nav class="navbar navbar-expand-lg bg-white border-bottom mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="{{ path('roles.index') }}">Simple PHP MVC</a>
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('roles.index') }}">Roles</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('specialities.index') }}">Especialidades</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('administratives.index') }}">Administrativos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('medicals.index') }}">Personal medico</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+        {% block layout %}
+            <div class="d-flex min-vh-100">
 
-    <main class="container pb-5">
-        {% block body %}{% endblock %}
-    </main>
-    {% endblock %}
+                <aside
+                    class="vitalis-sidebar offcanvas-lg offcanvas-start d-flex flex-column flex-shrink-0 border-end"
+                    id="sidebar"
+                    tabindex="-1"
+                    aria-labelledby="sidebar-title"
+                >
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+                    <div class="position-relative d-flex flex-column align-items-center justify-content-center py-4 border-bottom">
+                        <img class="vitalis-brand-logo mb-3" src="{{ asset('images/log.webp') }}" alt="">
+                        <span class="fw-bold fs-5" id="sidebar-title">Vitalis</span>
+                        <span class="text-body-secondary small">Clínica Médica</span>
+
+                        <button
+                            type="button"
+                            class="btn-close position-absolute top-0 end-0 m-3 d-lg-none"
+                            data-bs-dismiss="offcanvas"
+                            data-bs-target="#sidebar"
+                            aria-label="Cerrar menú"
+                        ></button>
+                    </div>
+
+                    <nav class="nav flex-column py-3 overflow-auto" aria-label="Navegación principal">
+                        {{ include(app.user and app.user.role.area.value == 'MEDIC'
+                            ? '_components/_sidebar_medic.html.twig'
+                            : '_components/_sidebar_admin.html.twig') }}
+                    </nav>
+
+                    {% if app.user %}
+                        <div class="mt-auto d-flex flex-column gap-2 p-4 border-top">
+                            <div class="dropdown dropup">
+                                <button class="btn btn-light border btn-md w-100 d-flex align-items-center justify-content-between gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-white border rounded-circle d-flex align-items-center justify-content-center text-body-secondary" style="width: 28px; height: 28px;">
+                                            <i class="bi bi-person small" aria-hidden="true"></i>
+                                        </div>
+                                        <span class="small fw-medium text-truncate">{{ app.user.firstName }} {{ app.user.lastName }}</span>
+                                    </div>
+                                    <i class="bi bi-chevron-up small" aria-hidden="true"></i>
+                                </button>
+
+                                <ul class="dropdown-menu w-100 mb-1">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2" href="{{ path('profile.show') }}">
+                                            <i class="bi bi-person" aria-hidden="true"></i>
+                                            Mi perfil
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="post" action="{{ path('logout') }}">
+                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}" data-controller="csrf-protection">
+                                            <button type="submit" class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                                Cerrar sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    {% endif %}
+                </aside>
+
+                <div class="d-flex flex-column flex-grow-1 overflow-hidden">
+
+                    <header class="d-lg-none d-flex align-items-center gap-3 px-3 py-2 border-bottom bg-body">
+                        <button
+                            class="btn btn-light border"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#sidebar"
+                            aria-controls="sidebar"
+                            aria-label="Abrir menú"
+                        >
+                            <i class="bi bi-list fs-5" aria-hidden="true"></i>
+                        </button>
+                        <span class="fw-semibold">Vitalis</span>
+                    </header>
+
+                    <main class="flex-grow-1 p-4 overflow-auto">
+
+                        {% set flash_style = {
+                            success: {class: 'alert-success', icon: 'bi-check-circle-fill'},
+                            error:   {class: 'alert-danger',  icon: 'bi-exclamation-circle-fill'},
+                            warning: {class: 'alert-warning', icon: 'bi-exclamation-triangle-fill'},
+                        } %}
+
+                        {% for type, messages in app.flashes %}
+                            {% set style = flash_style[type]|default(flash_style.warning) %}
+                            {% for message in messages %}
+                                <div class="alert {{ style.class }} d-flex align-items-start gap-2 mb-4" role="alert">
+                                    <i class="bi {{ style.icon }} mt-1 flex-shrink-0" aria-hidden="true"></i>
+                                    <div>{{ message }}</div>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
+                        {% block body %}{% endblock %}
+                    </main>
+                </div>
+            </div>
+        {% endblock %}
+
+        <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>

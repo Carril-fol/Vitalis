@@ -1,0 +1,136 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Dashboard',
+            subtitle: 'Cómo viene el día: los turnos de hoy y el estado general del centro.',
+            actions: [{path: path('turns.create'), label: 'Sacar turno', icon: 'bi-plus-lg', permission: 'create_turns'}]
+        } %}
+
+        {% if is_granted('read_turns') %}
+
+            {% set cards = [
+                {icon: 'bi-calendar-check',  color: 'text-primary', value: todayCount,                                                      label: 'Turnos de hoy'},
+                {icon: 'bi-hourglass-split', color: 'text-primary',    value: turns|filter(turn => turn.status.value == 'checked_in')|length,  label: 'En sala de espera'},
+                {icon: 'bi-check-lg',        color: 'text-primary', value: turns|filter(turn => turn.status.value == 'attended')|length,    label: 'Atendidos'},
+                {icon: 'bi-person-x',        color: 'text-primary', value: turns|filter(turn => turn.status.value == 'no_show')|length,     label: 'No vinieron'},
+            ] %}
+
+            <div class="row g-3 mb-4">
+                {% for card in cards %}
+                    <div class="col-6 col-xl-3">
+                        <div class="card h-100">
+                            <div class="card-body d-flex align-items-center gap-3">
+                                <i class="bi {{ card.icon }} {{ card.color }} fs-2" aria-hidden="true"></i>
+                                <div>
+                                    <div class="h4 mb-0">{{ card.value }}</div>
+                                    <div class="vitalis-hint">{{ card.label }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% endif %}
+
+        {% set totals = [
+            {icon: 'bi-people',          value: patients,     label: 'Pacientes activos',     permission: 'read_patients',     path: path('patients.index')},
+            {icon: 'bi-clipboard-pulse', value: medics,       label: 'Profesionales activos', permission: 'read_medics',       path: path('medicals.index')},
+            {icon: 'bi-stars',           value: specialities, label: 'Especialidades',        permission: 'read_specialities', path: path('specialities.index')},
+        ] %}
+
+        <div class="row g-3 mb-4">
+            {% for total in totals %}
+                {% if is_granted(total.permission) %}
+                    <div class="col-12 col-md-4">
+                        <a class="card h-100 text-decoration-none text-reset" href="{{ total.path }}">
+                            <div class="card-body d-flex align-items-center gap-3">
+                                <i class="bi {{ total.icon }} text-body-secondary fs-2" aria-hidden="true"></i>
+                                <div>
+                                    <div class="h4 mb-0">{{ total.value }}</div>
+                                    <div class="vitalis-hint">{{ total.label }}</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if is_granted('read_turns') %}
+
+            {% if turns is empty %}
+
+                {% include '_components/_empty_state.html.twig' with {
+                    icon: 'bi-calendar-check',
+                    title: 'Hoy no hay turnos',
+                    text: 'La agenda del día está vacía. Podés sacar uno ahora mismo.',
+                    action: {path: path('turns.create'), label: 'Sacar turno', permission: 'create_turns'},
+                    denied_text: 'La agenda de hoy está vacía.'
+                } %}
+
+            {% else %}
+
+                <div class="card">
+                    <div class="card-header py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h2 class="h6 mb-1">Agenda de hoy</h2>
+                            <p class="vitalis-hint mb-0">
+                                {{ turns|length == 1 ? '1 turno en el día' : turns|length ~ ' turnos en el día' }},
+                                del más temprano al más tarde.
+                            </p>
+                        </div>
+
+                        <a class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-2" href="{{ path('turns.index') }}">
+                            <i class="bi bi-clock-history" aria-hidden="true"></i>
+                            Ver todos los turnos
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4 text-nowrap">Hora</th>
+                                    <th class="w-100">Paciente</th>
+                                    <th class="text-nowrap">Profesional</th>
+                                    <th class="text-nowrap">Consultorio</th>
+                                    <th class="text-nowrap pe-4">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for turn in turns %}
+                                    <tr>
+                                        <td class="ps-4 fw-semibold text-nowrap">
+                                            {{ turn.startsAt|date('H:i') }}
+                                        </td>
+
+                                        <td>
+                                            {{ turn.patient.user.fullName }}
+                                            <div class="vitalis-hint">DNI {{ turn.patient.user.dni }}</div>
+                                        </td>
+
+                                        <td class="text-nowrap">{{ turn.medicalStaff.user.fullName }}</td>
+                                        <td class="text-nowrap">{{ turn.consultingRoom.name }}</td>
+
+                                        <td class="text-nowrap pe-4">
+                                            {{ include('turns/_badge.html.twig', {status: turn.status}) }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% endif %}
+
+        {% endif %}
+
+    </div>
+{% endblock body %}

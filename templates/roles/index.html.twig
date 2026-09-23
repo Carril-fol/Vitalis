@@ -1,111 +1,94 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Centro Clinico Vitalis - Roles{% endblock %}
+{% block title %}Roles · Vitalis{% endblock %}
 
 {% block body %}
-<div class="container-fluid px-0">
+    <div class="container-fluid px-0">
 
-    <!-- Encabezado de página -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
-        <div>
-            <h1 class="h3 mb-2">Roles</h1>
-            <p class="vitalis-hint mb-0">
-                Los roles agrupan los permisos que después asignás a cada usuario.
-            </p>
-        </div>
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Roles',
+            subtitle: 'Los roles agrupan los permisos que después asignás a cada usuario.',
+            actions: [{path: path('roles.create'), label: 'Nuevo rol', icon: 'bi-plus-lg', permission: 'create_roles'}]
+        } %}
 
-        <a class="btn btn-primary d-inline-flex align-items-center gap-2 flex-shrink-0" href="{{ path('roles.create') }}">
-            <i class="bi bi-plus-lg" aria-hidden="true"></i>
-            Nuevo rol
-        </a>
-    </div>
+        {% if roles is empty %}
 
-    {% for message in app.flashes('error') %}
-        <div class="alert alert-danger d-flex align-items-start gap-2 mb-4" role="alert">
-            <i class="bi bi-exclamation-circle-fill mt-1"></i>
-            <div>
-                <strong>No se pudo borrar el rol.</strong>
-                <div>{{ message }}</div>
-            </div>
-        </div>
-    {% endfor %}
+            {% include '_components/_empty_state.html.twig' with {
+                icon: 'bi-person-fill-gear',
+                title: 'Todavía no hay roles',
+                text: 'Creá el primero para empezar a repartir permisos entre los usuarios.',
+                action: {path: path('roles.create'), label: 'Crear el primer rol', permission: 'create_roles'},
+                denied_text: 'Espera a que un administrador con permisos para crear roles lo haga.'
+            } %}
 
-    {% if roles is empty %}
+        {% else %}
 
-        <!-- Estado vacío -->
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <i class="bi bi-person-fill-gear text-primary display-5 d-block mb-3" aria-hidden="true"></i>
-                <h2 class="h5 mb-2">Todavía no hay roles</h2>
-                <p class="vitalis-hint mb-4">
-                    Creá el primero para empezar a repartir permisos entre los usuarios.
-                </p>
-                <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{{ path('roles.create') }}">
-                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                    Crear el primer rol
-                </a>
-            </div>
-        </div>
+            <div class="card">
+                <div class="card-header py-3">
+                    <h2 class="h6 mb-1">Listado de roles</h2>
+                    <p class="vitalis-hint mb-0">
+                        {{ roles|length == 1 ? '1 rol registrado' : roles|length ~ ' roles registrados' }}
+                    </p>
+                </div>
 
-    {% else %}
-
-        <!-- Listado -->
-        <div class="card">
-            <div class="card-header py-3">
-                <h2 class="h6 mb-1">Listado de roles</h2>
-                <p class="vitalis-hint mb-0">
-                    {{ roles|length == 1 ? '1 rol registrado' : roles|length ~ ' roles registrados' }}
-                </p>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th class="ps-4 w-100">Nombre</th>
-                            <th class="text-nowrap">Área</th>
-                            <th class="text-end pe-4 text-nowrap">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for role in roles %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
                             <tr>
-                                <td class="ps-4 fw-semibold">{{ role.name }}</td>
-                                <td class="text-nowrap">
-                                    {% if role.area is null %}
-                                        <span class="vitalis-hint">—</span>
-                                    {% else %}
-                                        {{ role.area.label }}
-                                    {% endif %}
-                                </td>
-                                <td class="text-end pe-4">
-                                    <div class="d-inline-flex gap-2">
-
-                                        <a class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
-                                           href="{{ path('roles.edit', {id: role.id}) }}">
-                                            <i class="bi bi-pencil" aria-hidden="true"></i>
-                                            <span class="d-none d-sm-inline">Editar</span>
-                                        </a>
-
-                                        <form method="post" class="d-inline"
-                                              action="{{ path('roles.delete', {id: role.id}) }}"
-                                              onsubmit="return confirm({{ ('Se va a borrar el rol \"' ~ role.name ~ '\". Esta acción no se puede deshacer.')|json_encode }});">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-role-' ~ role.id) }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">
-                                                <i class="bi bi-trash" aria-hidden="true"></i>
-                                                <span class="d-none d-sm-inline">Borrar</span>
-                                            </button>
-                                        </form>
-
-                                    </div>
-                                </td>
+                                <th class="ps-4 w-100">Nombre</th>
+                                <th class="text-nowrap">Área</th>
+                                {% if is_granted('update_roles') or is_granted('delete_roles') %}
+                                    <th class="text-end pe-4 text-nowrap">Acciones</th>
+                                {% endif %}
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                        </thead>
+                        <tbody>
+                            {% for role in roles %}
+                                <tr>
+                                    <td class="ps-4 fw-semibold">{{ role.name }}</td>
+                                    <td class="text-nowrap">
+                                        {% if role.area is null %}
+                                            <span class="vitalis-hint">—</span>
+                                        {% else %}
+                                            {{ role.area.label }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="d-inline-flex gap-2">
+                                            {% if is_granted('update_roles') %}
+                                                <a
+                                                    class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                                                    href="{{ path('roles.edit', {id: role.id}) }}"
+                                                    aria-label="Editar rol {{ role.name }}"
+                                                >
+                                                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                                                    <span class="d-none d-sm-inline">Editar</span>
+                                                </a>
+                                            {% endif %}
 
-    {% endif %}
-</div>
+                                            {% if is_granted('delete_roles') %}
+                                                <form
+                                                    method="post"
+                                                    class="d-inline"
+                                                    action="{{ path('roles.delete', {id: role.id}) }}"
+                                                    onsubmit="return confirm({{ ('Se va a borrar el rol \"' ~ role.name ~ '\". Esta acción no se puede deshacer.')|json_encode }});"
+                                                >
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete-role-' ~ role.id) }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" aria-label="Borrar rol {{ role.name }}">
+                                                        <i class="bi bi-trash" aria-hidden="true"></i>
+                                                        <span class="d-none d-sm-inline">Borrar</span>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% endif %}
+    </div>
 {% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mi perfil · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Mi perfil',
+            subtitle: 'Tus datos en el sistema.',
+            actions: [{
+                path: path('profile.edit'),
+                label: 'Editar mis datos',
+                icon: 'bi-pencil'
+            }]
+        } %}
+
+        <div class="row g-4">
+
+            <div class="col-12 col-lg-7">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-card-icon">
+                            <i class="bi bi-person" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h2 class="h6 mb-0">Datos personales</h2>
+                            <p class="vitalis-hint mb-0">Estos los podés editar vos.</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4 fw-medium">Nombre</dt>
+                            <dd class="col-sm-8">{{ user.fullName|title }}</dd>
+
+                            <dt class="col-sm-4 fw-medium">Teléfono</dt>
+                            <dd class="col-sm-8">{{ user.phone|default('—') }}</dd>
+
+                            <dt class="col-sm-4 fw-medium">Dirección</dt>
+                            <dd class="col-sm-8">{{ user.address|default('—')|title }}</dd>
+
+                            <dt class="col-sm-4 fw-medium">Ciudad</dt>
+                            <dd class="col-sm-8 mb-0">{{ user.city|default('—')|title }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+                <div class="card h-100">
+                    <div class="card-header d-flex align-items-center gap-3 py-3">
+                        <span class="vitalis-card-icon">
+                            <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                        </span>
+                        <div>
+                            <h2 class="h6 mb-0">Identidad y acceso</h2>
+                            <p class="vitalis-hint mb-0">Los cambia administración.</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <dl class="row mb-0 small">
+                            <dt class="col-5 fw-medium">DNI</dt>
+                            <dd class="col-7">{{ user.dni }}</dd>
+
+                            <dt class="col-5 fw-medium">Email</dt>
+                            <dd class="col-7 text-break">{{ user.email }}</dd>
+
+                            <dt class="col-5 fw-medium">Nacimiento</dt>
+                            <dd class="col-7">{{ user.birthDate|date('d/m/Y') }}</dd>
+
+                            <dt class="col-5 fw-medium">Puesto</dt>
+                            <dd class="col-7">{{ user.role.name }}</dd>
+
+                            <dt class="col-5 fw-medium">Estado</dt>
+                            <dd class="col-7">
+                                {{ include('_components/_status_badge.html.twig', {active: user.isActive}) }}
+                            </dd>
+
+                            <dt class="col-5 fw-medium">En el sistema desde</dt>
+                            <dd class="col-7 mb-0">{{ user.createdAt|date('d/m/Y') }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

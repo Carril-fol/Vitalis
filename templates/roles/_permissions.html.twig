@@ -1,38 +1,36 @@
-{% set actionLabels = {read: 'Ver', create: 'Crear', update: 'Editar', delete: 'Borrar'} %}
-{% set moduleLabels = {administratives: 'Administrativos', medics: 'Médicos', patients: 'Pacientes', turns: 'Turnos', '': 'Otros'} %}
+{% set actions = {read: 'Ver', create: 'Crear', update: 'Editar', delete: 'Borrar'} %}
+
+{% set moduleLabels = {administratives: 'Administrativos', medics: 'Médicos', patients: 'Pacientes', turns: 'Turnos', roles: 'Roles', specialities: 'Especialidades', '': 'Otros'} %}
 
 <fieldset class="mt-4">
     <legend class="form-label fs-6">Permisos</legend>
+    {{ form_errors(form.permissions) }}
 
-    {% if permissions.modules is empty %}
+    {% if form.permissions.vars.choices is empty %}
         <p class="vitalis-hint mb-0">No hay permisos cargados.</p>
     {% else %}
         <div class="table-responsive">
-            <table class="table table-sm align-middle mb-0">
+            <table class="table table-sm align-middle mb-0 vitalis-permissions">
                 <thead>
                     <tr>
                         <th scope="col">Módulo</th>
-                        {% for action in permissions.actions %}
-                            <th scope="col" class="text-center">{{ actionLabels[action] ?? action }}</th>
+                        {% for label in actions %}
+                            <th scope="col" class="text-center">{{ label }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
-                    {% for module, byAction in permissions.modules %}
+                    {% for module, group in form.permissions.vars.choices %}
                         <tr>
                             <th scope="row" class="fw-normal">{{ moduleLabels[module] ?? module }}</th>
-                            {% for action in permissions.actions %}
+                            {% for action, actionLabel in actions %}
+                                {% set choice = group.choices|filter(choice => choice.data.name starts with action ~ '_')|first %}
                                 <td class="text-center">
-                                    {% if byAction[action] is defined %}
-                                        {% set permission = byAction[action] %}
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            name="permissions[]"
-                                            value="{{ permission.id }}"
-                                            aria-label="{{ (actionLabels[action] ?? action) ~ ' ' ~ (moduleLabels[module] ?? module) }}"
-                                            {{ permission.id in old.permissionIds ? 'checked' }}
-                                        >
+                                    {% if choice %}
+                                        {{ form_widget(form.permissions[choice.value], {
+                                            label: actionLabel ~ ' ' ~ (moduleLabels[module] ?? module),
+                                            label_attr: {class: 'visually-hidden'}
+                                        }) }}
                                     {% else %}
                                         <span class="vitalis-hint">—</span>
                                     {% endif %}

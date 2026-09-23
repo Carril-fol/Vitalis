@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva obra social · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Nueva obra social',
+            subtitle: 'Agregá una obra social que acepte la clínica para poder asignársela a los pacientes.',
+            actions: [{path: path('health-insurances.index'), label: 'Volver a obras sociales', icon: 'bi-arrow-left', class: 'btn btn-link px-0'}]
+        } %}
+
+        {% include '_components/_form_errors.html.twig' with {title: 'No se pudo crear la obra social'} %}
+
+        <div class="row">
+            <div class="col-12 col-xl-8">
+                {% include 'health-insurances/_form.html.twig' with {
+                    is_edit: false,
+                    submit_label: 'Crear obra social',
+                    loading_label: 'Creando…'
+                } %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

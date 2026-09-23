@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo consultorio · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Nuevo consultorio',
+            subtitle: 'Agregá un consultorio para poder asignarlo en los horarios de los médicos.',
+            actions: [{path: path('consulting-rooms.index'), label: 'Volver a consultorios', icon: 'bi-arrow-left', class: 'btn btn-link px-0'}]
+        } %}
+
+        {% include '_components/_form_errors.html.twig' with {title: 'No se pudo crear el consultorio'} %}
+
+        <div class="row">
+            <div class="col-12 col-xl-8">
+                {% include 'consulting-rooms/_form.html.twig' with {
+                    is_edit: false,
+                    submit_label: 'Crear consultorio',
+                    loading_label: 'Creando…'
+                } %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

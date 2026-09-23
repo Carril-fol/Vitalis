@@ -1,140 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Centro Clinico Vitalis - Editar administrativo{% endblock %}
+{% block title %}Editar administrativo · Vitalis{% endblock %}
 
-{#
-    administrative es el array de Administrative::toArray(). No hay estado de
-    "no encontrado": si el id no existe, el service tira NotFoundException y
-    Symfony responde 404 antes de llegar a esta vista.
-#}
 {% block body %}
-<div class="container-fluid px-0">
+    {% set user = form.vars.value.user %}
 
-    <!-- Encabezado -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <h1 class="h3 fw-bold mb-1">Editar administrativo</h1>
-            <p class="text-body-secondary mb-0">
-                Modificá el sector, el puesto y las notas del legajo.
-            </p>
-        </div>
+    <div class="container-fluid px-0">
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Editar administrativo',
+            subtitle: user.fullName ~ ' · DNI ' ~ user.dni ~ ' · ' ~ user.email,
+            actions: [{path: path('administratives.index'), label: 'Volver a administrativos', icon: 'bi-arrow-left', class: 'btn btn-link px-0'}]
+        } %}
 
-        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" href="{{ path('administratives.index') }}">
-            <i class="bi bi-arrow-left"></i>
-            Volver a administrativos
-        </a>
-    </div>
+        {% include '_components/_form_errors.html.twig' with {title: 'No se pudo guardar el legajo'} %}
 
-    {% if errors is not empty %}
-        <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
-            <i class="bi bi-exclamation-circle-fill mt-1"></i>
-            <div>
-                <strong>No se pudo guardar el legajo.</strong>
-                <div>{{ errors|length == 1 ? 'Revisá el campo marcado.' : 'Revisá los ' ~ errors|length ~ ' campos marcados.' }}</div>
+        <div class="row">
+            <div class="col-12 col-xl-8">
+                {% include 'administratives/_form.html.twig' with {
+                    is_edit: true,
+                    submit_label: 'Guardar cambios',
+                    loading_label: 'Guardando…'
+                } %}
             </div>
         </div>
-    {% endif %}
-
-    <!-- Formulario -->
-    <div class="card border-0 shadow-sm">
-
-        <div class="card-header bg-body border-bottom py-3">
-            <div class="d-flex align-items-center gap-3">
-
-                <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                     style="width: 40px; height: 40px;">
-                    <i class="bi bi-person-badge"></i>
-                </div>
-
-                <div>
-                    <h2 class="h6 fw-semibold mb-1">{{ administrative.user_name }}</h2>
-                    <p class="small text-body-secondary mb-0">
-                        DNI {{ administrative.user_dni }} · {{ administrative.user_email }}
-                    </p>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="card-body p-4">
-
-            {# El usuario del legajo no se edita: es su identidad. Para pasarlo a otra persona hay que crear uno nuevo. #}
-            <form method="post" action="{{ path('administratives.edit', {id: administrative.id}) }}">
-
-                <div class="mb-4">
-                    <label for="sector" class="form-label fw-semibold">Sector</label>
-                    <input
-                        type="text"
-                        id="sector"
-                        name="sector"
-                        maxlength="100"
-                        class="form-control{{ errors.sector is defined ? ' is-invalid' }}"
-                        value="{{ old.sector }}"
-                        placeholder="Ej. Mesa de entradas"
-                    >
-                    {% if errors.sector is defined %}
-                        <div class="invalid-feedback">{{ errors.sector[0] }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4">
-                    <label for="role_id" class="form-label fw-semibold">Puesto</label>
-                    {% if canChangePosition %}
-                        <select
-                            id="role_id"
-                            name="role_id"
-                            class="form-select{{ errors.roleId is defined ? ' is-invalid' }}"
-                        >
-                            {% for role in positions %}
-                                <option value="{{ role.id }}" {{ old.roleId == role.id ? 'selected' }}>{{ role.name }}</option>
-                            {% endfor %}
-                        </select>
-                        {% if errors.roleId is defined %}
-                            <div class="invalid-feedback">{{ errors.roleId[0] }}</div>
-                        {% else %}
-                            <div class="form-text">Es el rol de la persona: cambiarlo le cambia los permisos.</div>
-                        {% endif %}
-                    {% else %}
-                        {# Sin el permiso no se manda role_id: el controller deja el rol que ya tenia. #}
-                        <input type="text" id="role_id" class="form-control-plaintext" value="{{ administrative.role_name }}" readonly>
-                        <div class="form-text">No tenés permiso para cambiar el puesto.</div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4">
-                    <label for="notes" class="form-label fw-semibold">
-                        Notas <span class="text-body-secondary fw-normal">(opcional)</span>
-                    </label>
-                    <textarea
-                        id="notes"
-                        name="notes"
-                        rows="3"
-                        class="form-control"
-                        placeholder="Ej. Turno mañana, cubre guardias los sábados."
-                    >{{ old.notes }}</textarea>
-                    <div class="form-text">
-                        Dejalo vacío para borrar las notas.
-                    </div>
-                </div>
-
-                <div class="d-flex flex-column flex-sm-row justify-content-end gap-2">
-
-                    <a class="btn btn-outline-secondary" href="{{ path('administratives.index') }}">
-                        Cancelar
-                    </a>
-
-                    <button type="submit" class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-check-lg"></i>
-                        Guardar cambios
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
     </div>
-
-</div>
 {% endblock %}

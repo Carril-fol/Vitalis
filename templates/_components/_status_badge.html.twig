@@ -1,0 +1,5 @@
+{% if active %}
+    <span class="badge bg-success-subtle text-success-emphasis">{{ on|default('Activo') }}</span>
+{% else %}
+    <span class="badge bg-secondary-subtle text-secondary-emphasis">{{ off|default('Dado de baja') }}</span>
+{% endif %}

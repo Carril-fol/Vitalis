@@ -1,0 +1,40 @@
+<header class="landing-nav navbar navbar-expand-lg bg-white border-bottom sticky-top">
+    <div class="container">
+        <a href="{{ path('landing') }}" class="vitalis-brand fs-5 text-decoration-none">
+            <img class="vitalis-brand-logo" src="{{ asset('images/log.webp') }}" alt="">
+            Vitalis
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landing-menu"
+                aria-controls="landing-menu" aria-expanded="false" aria-label="Abrir menú">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div id="landing-menu" class="collapse navbar-collapse">
+            <nav class="navbar-nav mx-auto gap-lg-3">
+                <a class="nav-link" href="#especialidades">Especialidades</a>
+                <a class="nav-link" href="#obras-sociales">Obras sociales</a>
+                <a class="nav-link" href="#nosotros">Nosotros</a>
+                <a class="nav-link" href="#contacto">Contacto</a>
+            </nav>
+
+            <div class="d-flex align-items-center gap-2 py-3 py-lg-0">
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Acceso
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            {% if app.user %}
+                                <a class="dropdown-item" href="{{ path('dashboard.index') }}"><i class="bi bi-clipboard me-2"></i>Ir al panel</a>
+                            {% else %}
+                                <a class="dropdown-item" href="{{ path('login') }}"><i class="bi bi-person-badge me-2"></i>Portal del personal</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                <a href="#turnos" class="btn btn-primary">Pedir turno</a>
+            </div>
+        </div>
+    </div>
+</header>

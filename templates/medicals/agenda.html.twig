@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mi agenda · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Hola, ' ~ medic.user.fullName|title,
+            subtitle: 'Tu agenda del ' ~ "now"|date('d/m/Y') ~ '.'
+        } %}
+
+        <div class="card">
+            <div class="card-header py-3">
+                <h2 class="h6 mb-1">Pacientes de hoy</h2>
+                <p class="vitalis-hint mb-0">
+                    {% if turns is empty %}
+                        Tu agenda del día está vacía.
+                    {% else %}
+                        {{ turns|length == 1 ? '1 turno en el día' : turns|length ~ ' turnos en el día' }},
+                        del más temprano al más tarde.
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if turns is empty %}
+
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-calendar-check text-primary display-6 d-block mb-3" aria-hidden="true"></i>
+                    <h3 class="h6 mb-2">No tenés turnos por el momento</h3>
+                    <p class="vitalis-hint mb-0">
+                        Cuando recepción cargue turnos para hoy, van a aparecer acá.
+                    </p>
+                </div>
+
+            {% else %}
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4 text-nowrap">Hora</th>
+                                <th class="w-100">Paciente</th>
+                                <th class="text-nowrap">Consultorio</th>
+                                <th class="text-nowrap">Motivo</th>
+                                <th class="text-nowrap">Estado</th>
+                                {% if is_granted('update_turns') %}
+                                    <th class="text-end pe-4 text-nowrap">Acciones</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for turn in turns %}
+                                <tr>
+                                    <td class="ps-4 fw-semibold text-nowrap">
+                                        {{ turn.startsAt|date('H:i') }}
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex">
+                                            <a class="fw-medium text-decoration-none" href="{{ path('consultations.show', {turn: turn.id}) }}">
+                                                {{ turn.patient.user.fullName|title }}
+                                            </a>
+                                            {% if turn.id in noteIds %}
+                                                <i class="bi bi-journal-check text-success ms-2" title="Tiene nota" aria-hidden="true"></i>
+                                                <span class="visually-hidden">Tiene nota</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="vitalis-hint">DNI {{ turn.patient.user.dni }}</div>
+                                    </td>
+
+                                    <td class="text-nowrap">{{ turn.consultingRoom.name }}</td>
+                                    <td class="vitalis-hint">{{ turn.reason|default('—') }}</td>
+
+                                    <td class="text-nowrap">
+                                        {{ include('turns/_badge.html.twig', {status: turn.status}) }}
+                                    </td>
+
+                                    {% if is_granted('update_turns') %}
+                                        <td class="text-end pe-4">
+                                            {% if turn.status.value in ['booked', 'checked_in'] %}
+                                                <div class="d-inline-flex gap-2">
+                                                    {{ include('turns/_status_button.html.twig', {
+                                                        turn: turn, back: 'medic',
+                                                        status: 'attended', etiqueta: 'Atendido',
+                                                        icono: 'bi-check-lg', variante: 'btn-outline-success',
+                                                    }) }}
+
+                                                    {{ include('turns/_status_button.html.twig', {
+                                                        turn: turn, back: 'medic',
+                                                        status: 'no_show', etiqueta: 'No vino',
+                                                        icono: 'bi-person-x', variante: 'btn-outline-warning',
+                                                    }) }}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            {% endif %}
+        </div>
+
+    </div>
+{% endblock body %}

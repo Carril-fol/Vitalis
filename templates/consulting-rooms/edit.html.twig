@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Editar consultorio · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Editar consultorio',
+            subtitle: 'El cambio de nombre se refleja en los horarios y turnos que lo usan.',
+            actions: [{path: path('consulting-rooms.index'), label: 'Volver a consultorios', icon: 'bi-arrow-left', class: 'btn btn-link px-0'}]
+        } %}
+
+        {% include '_components/_form_errors.html.twig' with {title: 'No se pudo guardar el consultorio'} %}
+
+        <div class="row">
+            <div class="col-12 col-xl-8">
+                {% include 'consulting-rooms/_form.html.twig' with {
+                    is_edit: true,
+                    submit_label: 'Guardar cambios',
+                    loading_label: 'Guardando…'
+                } %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

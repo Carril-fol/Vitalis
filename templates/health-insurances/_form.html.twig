@@ -1,0 +1,20 @@
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{{ form_start(form, {attr: {novalidate: 'novalidate', 'data-vitalis-loading': true}}) }}
+
+<div class="card">
+    <div class="card-header d-flex align-items-center gap-3 py-3">
+        <span class="vitalis-card-icon">
+            <i class="bi bi-shield-plus" aria-hidden="true"></i>
+        </span>
+        <h2 class="h6 mb-0">Datos de la obra social</h2>
+    </div>
+
+    <div class="card-body">
+        {{ form_row(form.name, {attr: {placeholder: 'Ej. OSDE', maxlength: 100, autofocus: not is_edit, autocomplete: 'off'}}) }}
+
+        {% include '_components/_form_actions.html.twig' with {cancel_path: path('health-insurances.index')} %}
+    </div>
+</div>
+
+{{ form_end(form) }}

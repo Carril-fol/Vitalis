@@ -1,0 +1,28 @@
+
+{% set params = params|default({}) %}
+
+{% if page.hasToPaginate %}
+    <nav aria-label="Paginado">
+        <ul class="pagination justify-content-center mb-0">
+
+            <li class="page-item {{ not page.hasPreviousPage ? 'disabled' }}">
+                <a class="page-link" href="{{ path(route, params|merge({ page: page.pageNumber - 1 })) }}">
+                    Anterior
+                </a>
+            </li>
+
+            {% for p in 1..page.pageCount %}
+                <li class="page-item {{ p == page.pageNumber ? 'active' }}">
+                    <a class="page-link" href="{{ path(route, params|merge({ page: p })) }}">{{ p }}</a>
+                </li>
+            {% endfor %}
+
+            <li class="page-item {{ not page.hasNextPage ? 'disabled' }}">
+                <a class="page-link" href="{{ path(route, params|merge({ page: page.pageNumber + 1 })) }}">
+                    Siguiente
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+{% endif %}

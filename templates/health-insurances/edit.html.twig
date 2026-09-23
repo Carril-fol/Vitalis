@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Editar obra social · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Editar obra social',
+            subtitle: 'El cambio de nombre se refleja en todos los pacientes que la tienen.',
+            actions: [{path: path('health-insurances.index'), label: 'Volver a obras sociales', icon: 'bi-arrow-left', class: 'btn btn-link px-0'}]
+        } %}
+
+        {% include '_components/_form_errors.html.twig' with {title: 'No se pudo guardar la obra social'} %}
+
+        <div class="row">
+            <div class="col-12 col-xl-8">
+                {% include 'health-insurances/_form.html.twig' with {
+                    is_edit: true,
+                    submit_label: 'Guardar cambios',
+                    loading_label: 'Guardando…'
+                } %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

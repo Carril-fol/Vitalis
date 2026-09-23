@@ -1,39 +1,28 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Centro Clinico Vitalis - Personal Medico{% endblock %}
+{% block title %}Personal médico · Vitalis{% endblock %}
 
 {% block body %}
     <div class="container-fluid px-0">
-        
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
-            <div>
-                <h1 class="h3 mb-2">Personal Médico</h1>
-                <p class="vitalis-hint mb-0">
-                    Médicos, enfermeros, auxiliares y estudiantes internos del área médica.
-                </p>
-            </div>
 
-            <a class="btn btn-primary d-inline-flex align-items-center gap-2 flex-shrink-0" href="{{ path('medicals.create') }}">
-                <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                Nuevo personal médico
-            </a>
-        </div>
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Personal Médico',
+            subtitle: 'Médicos, enfermeros, auxiliares y estudiantes internos del área médica.',
+            actions: [
+                {path: path('medicals.holidays'), label: 'Feriados', icon: 'bi-calendar-x', permission: 'update_medics', class: 'btn btn-outline-primary'},
+                {path: path('medicals.create'), label: 'Nuevo personal médico', icon: 'bi-plus-lg', permission: 'create_medics'}
+            ]
+        } %}
 
         {% if medicalStaff is empty %}
 
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="bi bi-person-badge text-primary display-5 d-block mb-3" aria-hidden="true"></i>
-                    <h2 class="h5 mb-2">Todavía no hay personal médico</h2>
-                    <p class="vitalis-hint mb-4">
-                        Registrá al primer médico, enfermero, auxiliar o estudiante interno.
-                    </p>
-                    <a class="btn btn-primary d-inline-flex align-items-center gap-2" href="{{ path('medicals.create') }}">
-                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                        Registrar el primero
-                    </a>
-                </div>
-            </div>
+            {% include '_components/_empty_state.html.twig' with {
+                icon: 'bi-person-badge',
+                title: 'Todavía no hay personal médico',
+                text: 'Registrá al primer médico, enfermero, auxiliar o estudiante interno.',
+                action: {path: path('medicals.create'), label: 'Registrar el primero', permission: 'create_medics'},
+                denied_text: 'Esperá a que alguien con permiso para registrar personal médico lo haga.'
+            } %}
 
         {% else %}
 
@@ -54,71 +43,91 @@
                                 <th class="text-nowrap">Especialidad</th>
                                 <th class="text-nowrap">Matrícula</th>
                                 <th class="text-nowrap">Estado</th>
-                                <th class="text-end pe-4 text-nowrap">Acciones</th>
+                                {% if is_granted('update_medics') %}
+                                    <th class="text-end pe-4 text-nowrap">Acciones</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for staff in medicalStaff %}
-                                {% set confirm = staff.user.isActive()
-                                ? 'Se va a dar de baja a "' ~ staff.user.fullName() ~ '". El legajo se conserva y se puede reactivar.'
-                                : 'Se va a reactivar a "' ~ staff.user.fullName() ~ '".' %}
+                                {% set user = staff.user %}
+                                {% set active = user.isActive %}
+                                {% set confirmar = active
+                                    ? 'Se va a dar de baja a "' ~ user.fullName ~ '". El legajo se conserva y se puede reactivar.'
+                                    : 'Se va a reactivar a "' ~ user.fullName ~ '".' %}
 
                                 <tr>
                                     <td class="ps-4">
-                                        <span class="fw-semibold d-block">{{ staff.user.fullName() }}</span>
-                                        <span class="vitalis-hint">DNI {{ staff.user.dni() }}</span>
+                                        <span class="fw-semibold d-block">{{ user.fullName }}</span>
+                                        <span class="vitalis-hint">DNI {{ user.dni }}</span>
                                     </td>
 
-                                    <td class="text-nowrap">{{ staff.user.role.name() }}</td>
+                                    <td class="text-nowrap">{{ user.role.name }}</td>
 
                                     <td class="text-nowrap">
                                         {% if staff.speciality is null %}
                                             <span class="vitalis-hint">—</span>
                                         {% else %}
-                                            {{ staff.speciality.name() }}
+                                            {{ staff.speciality.name }}
                                         {% endif %}
                                     </td>
 
                                     <td class="text-nowrap">
-                                        {% if staff.licenseNumber() is null %}
+                                        {% if staff.licenseNumber is null %}
                                             <span class="vitalis-hint">Sin matrícula</span>
                                         {% else %}
-                                            {{ staff.licenseNumber() }}
+                                            {{ staff.licenseNumber }}
                                         {% endif %}
                                     </td>
 
                                     <td class="text-nowrap">
-                                        {% if staff.user.isActive() %}
-                                            <span class="badge text-bg-success-subtle text-success-emphasis">Activo</span>
-                                        {% else %}
-                                            <span class="badge text-bg-secondary-subtle text-secondary-emphasis">Dado de baja</span>
-                                        {% endif %}
+                                        {% include '_components/_status_badge.html.twig' with {active: active} %}
                                     </td>
 
-                                    <td class="text-end pe-4">
-                                        <div class="d-inline-flex gap-2">
-                                            <a
-                                                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
-                                                href="{{ path('medicals.edit', {id: staff.id}) }}"
-                                            >
-                                                <i class="bi bi-pencil" aria-hidden="true"></i>
-                                                <span class="d-none d-sm-inline">Editar</span>
-                                            </a>
-                                            
-                                            {% if staff.user.isActive() %}
-                                                <form action="{{ path('medicals.deactivate', {id: staff.id}) }}" method="POST" style="display:inline;">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('status-medicalstaff-' ~ staff.id) }}">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">Desactivar</button>
-                                                </form>
-                                            {% else %}
-                                                <form action="{{ path('medicals.activate', {id: staff.id}) }}" method="POST">
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('status-medicalstaff-' ~ staff.id) }}">
-                                                    <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">Reactivar</button>
-                                                </form>
-                                            {% endif %}
+                                    {% if is_granted('update_medics') %}
+                                        <td class="text-end pe-4">
+                                            <div class="d-inline-flex gap-2">
 
-                                        </div>
-                                    </td>
+                                                <a
+                                                    class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                                                    href="{{ path('medicals.edit', {id: staff.id}) }}"
+                                                    aria-label="Editar a {{ user.fullName }}"
+                                                >
+                                                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                                                    <span class="d-none d-sm-inline">Editar</span>
+                                                </a>
+
+                                                <a
+                                                    class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                                                    href="{{ path('medicals.schedule', {id: staff.id}) }}"
+                                                    aria-label="Horarios de {{ user.fullName }}"
+                                                >
+                                                    <i class="bi bi-calendar-week" aria-hidden="true"></i>
+                                                    <span class="d-none d-sm-inline">Horarios</span>
+                                                </a>
+
+                                                <form
+                                                    method="post"
+                                                    class="d-inline"
+                                                    action="{{ path('medicals.status', {id: staff.id, status: active ? 'deactivate' : 'activate'}) }}"
+                                                    onsubmit="return confirm({{ confirmar|json_encode }});"
+                                                >
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('status-medicalstaff-' ~ staff.id) }}">
+
+                                                    {% if active %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">
+                                                            Desactivar
+                                                        </button>
+                                                    {% else %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">
+                                                            Reactivar
+                                                        </button>
+                                                    {% endif %}
+                                                </form>
+
+                                            </div>
+                                        </td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                         </tbody>

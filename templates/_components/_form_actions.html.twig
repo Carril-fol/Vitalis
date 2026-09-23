@@ -1,0 +1,14 @@
+<div class="d-grid d-sm-flex justify-content-sm-end gap-2 mt-4">
+    <a class="btn btn-link order-2 order-sm-1" href="{{ cancel_path }}">
+        Cancelar
+    </a>
+
+    <button
+        type="submit"
+        class="btn btn-primary order-1 order-sm-2 d-inline-flex align-items-center justify-content-center gap-2"
+        data-loading-label="{{ loading_label }}"
+    >
+        <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+        <span class="label">{{ submit_label }}</span>
+    </button>
+</div>

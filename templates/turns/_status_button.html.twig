@@ -1,0 +1,18 @@
+{% set page = page|default(1) %}
+<form
+    method="post"
+    class="d-inline"
+    action="{{ path('turns.status', { id: turn.id, status: status, page: page }) }}"
+>
+    <input type="hidden" name="_token" value="{{ csrf_token('status-turn-' ~ turn.id) }}">
+    {% if back is defined %}<input type="hidden" name="back" value="{{ back }}">{% endif %}
+
+    <button
+        type="submit"
+        class="btn btn-sm {{ variante }} d-inline-flex align-items-center gap-1"
+        aria-label="{{ etiqueta }} — turno de {{ turn.patient.user.fullName }}"
+    >
+        <i class="bi {{ icono }}" aria-hidden="true"></i>
+        <span class="d-none d-xl-inline">{{ etiqueta }}</span>
+    </button>
+</form>

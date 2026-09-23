@@ -1,33 +1,33 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Administrativos · Vitalis{% endblock %}
+{% block title %}Pacientes · Vitalis{% endblock %}
 
 {% block body %}
     <div class="container-fluid px-0">
 
         {% include '_components/_page_header.html.twig' with {
-            title: 'Administrativos',
-            subtitle: 'El legajo administrativo de cada usuario: en qué sector trabaja y qué puesto ocupa.',
-            actions: [{path: path('administratives.create'), label: 'Nuevo administrativo', icon: 'bi-plus-lg', permission: 'create_administratives'}]
+            title: 'Pacientes',
+            subtitle: 'Los pacientes del centro con su obra social y número de socio.',
+            actions: [{path: path('patients.create'), label: 'Nuevo paciente', icon: 'bi-plus-lg', permission: 'create_patients'}]
         } %}
 
-        {% if administratives is empty %}
+        {% if patients is empty %}
 
             {% include '_components/_empty_state.html.twig' with {
-                icon: 'bi-person-badge',
-                title: 'Todavía no hay administrativos',
-                text: 'Creá el primer legajo asignándoselo a un usuario existente.',
-                action: {path: path('administratives.create'), label: 'Crear el primero', permission: 'create_administratives'},
-                denied_text: 'Esperá a que alguien con permiso para crear administrativos cargue el primero.'
+                icon: 'bi-person-heart',
+                title: 'Todavía no hay pacientes',
+                text: 'Registrá el primer paciente con sus datos y su obra social.',
+                action: {path: path('patients.create'), label: 'Nuevo paciente', permission: 'create_patients'},
+                denied_text: 'Esperá a que alguien con permiso para registrar pacientes lo haga.'
             } %}
 
         {% else %}
 
             <div class="card">
                 <div class="card-header py-3">
-                    <h2 class="h6 mb-1">Listado de administrativos</h2>
+                    <h2 class="h6 mb-1">Listado de pacientes</h2>
                     <p class="vitalis-hint mb-0">
-                        {{ administratives|length == 1 ? '1 administrativo registrado' : administratives|length ~ ' administrativos registrados' }}
+                        {{ patients|length == 1 ? '1 paciente registrado' : patients|length ~ ' pacientes registrados' }}
                     </p>
                 </div>
 
@@ -35,22 +35,21 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4 w-100">Usuario</th>
-                                <th class="text-nowrap">Sector</th>
-                                <th class="text-nowrap">Puesto</th>
-                                <th>Notas</th>
+                                <th class="ps-4">Paciente</th>
+                                <th class="text-nowrap">Obra social</th>
+                                <th class="w-100">Número de socio</th>
                                 <th class="text-nowrap">Estado</th>
-                                {% if is_granted('update_administratives') %}
+                                {% if is_granted('update_patients') %}
                                     <th class="text-end pe-4 text-nowrap">Acciones</th>
                                 {% endif %}
                             </tr>
                         </thead>
                         <tbody>
-                            {% for administrative in administratives %}
-                                {% set user = administrative.user %}
+                            {% for patient in patients %}
+                                {% set user = patient.user %}
                                 {% set active = user.isActive %}
                                 {% set confirmar = active
-                                    ? 'Se va a dar de baja a "' ~ user.fullName ~ '". El legajo se conserva y se puede reactivar.'
+                                    ? 'Se va a dar de baja a "' ~ user.fullName ~ '". Sus datos se conservan y se puede reactivar.'
                                     : 'Se va a reactivar a "' ~ user.fullName ~ '".' %}
 
                                 <tr>
@@ -59,15 +58,13 @@
                                         <span class="vitalis-hint">DNI {{ user.dni }}</span>
                                     </td>
 
-                                    <td class="text-nowrap">{{ administrative.sector }}</td>
-
-                                    <td class="text-nowrap">{{ user.role.name }}</td>
+                                    <td class="text-nowrap">{{ patient.healthInsurance.name }}</td>
 
                                     <td>
-                                        {% if administrative.notes is null %}
+                                        {% if patient.memberNumber is empty %}
                                             <span class="vitalis-hint">—</span>
                                         {% else %}
-                                            {{ administrative.notes }}
+                                            {{ patient.memberNumber }}
                                         {% endif %}
                                     </td>
 
@@ -75,13 +72,13 @@
                                         {% include '_components/_status_badge.html.twig' with {active: active} %}
                                     </td>
 
-                                    {% if is_granted('update_administratives') %}
+                                    {% if is_granted('update_patients') %}
                                         <td class="text-end pe-4">
                                             <div class="d-inline-flex gap-2">
 
                                                 <a
                                                     class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
-                                                    href="{{ path('administratives.edit', {id: administrative.id}) }}"
+                                                    href="{{ path('patients.edit', {id: patient.id}) }}"
                                                     aria-label="Editar a {{ user.fullName }}"
                                                 >
                                                     <i class="bi bi-pencil" aria-hidden="true"></i>
@@ -91,18 +88,20 @@
                                                 <form
                                                     method="post"
                                                     class="d-inline"
-                                                    action="{{ path('administratives.status', {id : administrative.id, status : active ? 'deactivate' : 'activate'}) }}"
+                                                    action="{{ path('patients.status', {id : patient.id, status : active ? 'deactivate' : 'activate'}) }}"
                                                     onsubmit="return confirm({{ confirmar|json_encode }});"
                                                 >
-                                                    <input type="hidden" name="_token" value="{{ csrf_token('status-administrative-' ~ administrative.id) }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('status-patient-' ~ patient.id) }}">
 
                                                     {% if active %}
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">
-                                                            Desactivar
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" aria-label="Dar de baja a {{ user.fullName }}">
+                                                            <i class="bi bi-person-dash" aria-hidden="true"></i>
+                                                            <span class="d-none d-sm-inline">Dar de baja</span>
                                                         </button>
                                                     {% else %}
-                                                        <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1">
-                                                            Reactivar
+                                                        <button type="submit" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1" aria-label="Reactivar a {{ user.fullName }}">
+                                                            <i class="bi bi-person-check" aria-hidden="true"></i>
+                                                            <span class="d-none d-sm-inline">Reactivar</span>
                                                         </button>
                                                     {% endif %}
                                                 </form>

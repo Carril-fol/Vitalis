@@ -1,0 +1,16 @@
+{% set clase = {
+    'booked':     'bg-primary-subtle text-primary-emphasis',
+    'checked_in': 'bg-info-subtle text-info-emphasis',
+    'attended':   'bg-success-subtle text-success-emphasis',
+    'no_show':    'bg-warning-subtle text-warning-emphasis',
+    'cancelled':  'bg-secondary-subtle text-secondary-emphasis',
+} %}
+{% set etiqueta = {
+    'booked':     'Reservado',
+    'checked_in': 'En sala de espera',
+    'attended':   'Atendido',
+    'no_show':    'No vino',
+    'cancelled':  'Cancelado',
+} %}
+
+<span class="badge {{ clase[status.value] }}">{{ etiqueta[status.value] }}</span>

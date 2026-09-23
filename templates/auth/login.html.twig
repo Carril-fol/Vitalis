@@ -1,16 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Centro Clinico Vitalis - Iniciar sesión{% endblock %}
+{% block title %}Iniciar sesión · Vitalis{% endblock %}
 
 {% block layout %}
 {% set summary = errors.credentials[0] ?? null %}
 
 <div class="vitalis-auth container-fluid px-0">
     <div class="row g-0 min-vh-100">
-        <!-- Panel izquierdo: imagen -->
         <div class="vitalis-visual col-lg-5 d-none d-lg-block position-relative overflow-hidden">
             <img
-                src="{{ asset('images/login-image.webp') }}"
+                src="{{ asset('images/landing/login-image.webp') }}"
                 alt=""
                 class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
             >
@@ -29,14 +28,13 @@
                     </h2>
 
                     <p class="mb-0 text-white-50">
-                        Turnos, historias clínicas y facturación,
-                        siempre sincronizados.
+                        Turnos, pacientes, obras sociales y la agenda
+                        de cada profesional, siempre a mano.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- Panel derecho: formulario -->
         <div class="col-12 col-lg-7">
             <div class="d-flex align-items-center justify-content-center min-vh-100 p-4 p-md-5">
                 <div class="vitalis-auth-form">
@@ -71,10 +69,9 @@
                         </div>
                     {% endif %}
 
-                    <!-- Formulario -->
                     <form method="post" action="{{ path('login') }}" data-vitalis-loading>
 
-                        <div class="vitalis-field mb-3">
+                        <div class="vitalis-field mb-3 {{ summary is not null ? 'has-error' }}">
 
                             <label for="email" class="form-label">
                                 Email
@@ -95,12 +92,12 @@
                                     class="form-control"
                                     value="{{ old.email ?? '' }}"
                                     placeholder="tu@email.com"
-                                    {% if summary is not null %}aria-describedby="login-error"{% endif %}
+                                    {% if summary is not null %}aria-invalid="true" aria-describedby="login-error"{% endif %}
                                 >
                             </div>
                         </div>
 
-                        <div class="vitalis-field mb-3">
+                        <div class="vitalis-field mb-3 {{ summary is not null ? 'has-error' }}">
 
                             <label for="password" class="form-label">
                                 Contraseña
@@ -121,6 +118,7 @@
                                     class="form-control"
                                     placeholder="Ingresá tu contraseña"
                                     data-vitalis-capslock="#caps-lock"
+                                    {% if summary is not null %}aria-invalid="true" aria-describedby="login-error"{% endif %}
                                 >
 
                                 <button

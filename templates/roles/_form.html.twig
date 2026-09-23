@@ -1,0 +1,29 @@
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{{ form_start(form, {attr: {novalidate: 'novalidate', 'data-vitalis-loading': true}}) }}
+
+<div class="card">
+    <div class="card-header d-flex align-items-center gap-3 py-3">
+        <span class="vitalis-card-icon">
+            <i class="bi {{ is_edit ? 'bi-shield-check' : 'bi-shield-plus' }}" aria-hidden="true"></i>
+        </span>
+        <h2 class="h6 mb-0">Información del rol</h2>
+    </div>
+
+    <div class="card-body">
+        {{ form_row(form.name, {
+            attr: {placeholder: 'Ej. Recepción', maxlength: 50, autofocus: not is_edit, autocomplete: 'off'},
+            help: 'Usá el nombre con el que el equipo va a reconocer al rol. Hasta 50 caracteres.'
+        }) }}
+
+        {{ form_row(form.area, {
+            help: 'El alta de cada perfil ofrece solo los roles de su área (por ejemplo, el puesto de un administrativo). Un rol sin área sirve igual para permisos.'
+        }) }}
+
+        {% include 'roles/_permissions.html.twig' %}
+
+        {% include '_components/_form_actions.html.twig' with {cancel_path: path('roles.index')} %}
+    </div>
+</div>
+
+{{ form_end(form) }}

@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Obras sociales · Vitalis{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Obras sociales',
+            subtitle: 'Las obras sociales que acepta la clínica y que se pueden asignar a los pacientes.',
+            actions: [{path: path('health-insurances.create'), label: 'Nueva obra social', icon: 'bi-plus-lg', permission: 'create_health_insurances'}]
+        } %}
+
+        {% if healthInsurances is empty %}
+
+            {% include '_components/_empty_state.html.twig' with {
+                icon: 'bi-shield-plus',
+                title: 'Todavía no hay obras sociales',
+                text: 'Cargá la primera para poder asignársela a los pacientes.',
+                action: {path: path('health-insurances.create'), label: 'Crear la primera', permission: 'create_health_insurances'},
+                denied_text: 'Esperá a que alguien con permiso para crear obras sociales las cargue.'
+            } %}
+
+        {% else %}
+
+            <div class="card">
+                <div class="card-header py-3">
+                    <h2 class="h6 mb-1">Listado de obras sociales</h2>
+                    <p class="vitalis-hint mb-0">
+                        {{ healthInsurances|length == 1 ? '1 obra social registrada' : healthInsurances|length ~ ' obras sociales registradas' }}
+                    </p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4 w-100">Nombre</th>
+                                {% if is_granted('update_health_insurances') %}
+                                    <th class="text-end pe-4 text-nowrap">Acciones</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for healthInsurance in healthInsurances %}
+                                <tr>
+                                    <td class="ps-4 fw-semibold">{{ healthInsurance.name }}</td>
+
+                                    {% if is_granted('update_health_insurances') %}
+                                        <td class="text-end pe-4">
+                                            <a
+                                                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                                                href="{{ path('health-insurances.edit', {id: healthInsurance.id}) }}"
+                                                aria-label="Editar {{ healthInsurance.name }}"
+                                            >
+                                                <i class="bi bi-pencil" aria-hidden="true"></i>
+                                                <span class="d-none d-sm-inline">Editar</span>
+                                            </a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% endif %}
+    </div>
+{% endblock %}

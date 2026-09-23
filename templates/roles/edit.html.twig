@@ -1,122 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Centro Clinico Vitalis - Editar rol{% endblock %}
+{% block title %}Editar rol · Vitalis{% endblock %}
 
 {% block body %}
-{# errors viene de ValidationException (campo => mensajes). Arriba se muestra el primero. #}
-{% set error = errors is empty ? null : (errors|first)|first %}
-<div class="container-fluid px-0">
+    {% set role = form.vars.value %}
 
-    <!-- Encabezado -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <h1 class="h3 fw-bold mb-1">Editar rol</h1>
-            <p class="text-body-secondary mb-0">
-                Modificá la información del rol seleccionado.
-            </p>
-        </div>
+    <div class="container-fluid px-0">
+        {% include '_components/_page_header.html.twig' with {
+            title: 'Editar rol',
+            subtitle: role.name ~ (role.area is not null ? ' · ' ~ role.area.label : ''),
+            actions: [{path: path('roles.index'), label: 'Volver a roles', icon: 'bi-arrow-left', class: 'btn btn-link px-0'}]
+        } %}
 
-        <a class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" href="{{ path('roles.index') }}">
-            <i class="bi bi-arrow-left"></i>
-            Volver a roles
-        </a>
-    </div>
+        {% include '_components/_form_errors.html.twig' with {title: 'No se pudo guardar el rol'} %}
 
-    {% if error is not null %}
-        <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
-            <i class="bi bi-exclamation-circle-fill mt-1"></i>
-            <div>
-                <strong>No se pudo guardar el rol.</strong>
-                <div>{{ error }}</div>
+        <div class="row">
+            <div class="col-12 col-xl-8">
+                {% include 'roles/_form.html.twig' with {
+                    is_edit: true,
+                    submit_label: 'Guardar cambios',
+                    loading_label: 'Guardando…'
+                } %}
             </div>
         </div>
-    {% endif %}
-
-    <!-- Formulario -->
-    <div class="card border-0 shadow-sm">
-
-        <div class="card-header bg-body border-bottom py-3">
-            <div class="d-flex align-items-center gap-3">
-
-                <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                     style="width: 40px; height: 40px;">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-
-                <div>
-                    <h2 class="h6 fw-semibold mb-1">Información del rol</h2>
-                    <p class="small text-body-secondary mb-0">
-                        Actualizá el nombre del rol.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="card-body p-4">
-
-            <form method="post" action="{{ path('roles.edit', {id: role.id}) }}">
-
-                <div class="mb-4">
-
-                    <label for="name" class="form-label fw-semibold">Nombre del rol</label>
-
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        maxlength="50"
-                        required
-                        class="form-control{{ errors.name is defined ? ' is-invalid' }}"
-                        value="{{ old.name }}"
-                        placeholder="Ej. Administrador"
-                    >
-
-                    <div class="form-text">
-                        Utilizá un nombre claro para identificar el rol.
-                    </div>
-
-                    {% if errors.name is defined %}
-                        <div class="invalid-feedback">{{ errors.name[0] }}</div>
-                    {% endif %}
-
-                </div>
-
-                <div class="mb-4">
-                    <label for="area" class="form-label fw-semibold">Área</label>
-                    <select id="area" name="area" class="form-select">
-                        <option value="">Sin área</option>
-                        {% for area in areas %}
-                            <option value="{{ area.value }}" {{ old.area == area.value ? 'selected' }}>{{ area.label }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="form-text">
-                        El alta de cada perfil ofrece solo los roles de su área. Un rol sin área sirve igual para permisos.
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    {% include 'roles/_permissions.html.twig' %}
-                </div>
-
-                <div class="d-flex flex-column flex-sm-row justify-content-end gap-2">
-
-                    <a class="btn btn-outline-secondary" href="{{ path('roles.index') }}">
-                        Cancelar
-                    </a>
-
-                    <button type="submit" class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-check-lg"></i>
-                        Guardar cambios
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
     </div>
-
-</div>
 {% endblock %}

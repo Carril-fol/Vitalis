@@ -1,0 +1,25 @@
+<a
+    class="nav-link d-flex align-items-center gap-2 px-4 py-3 {{ app.request.get('_route') == 'dashboard.medic' ? 'active' }}"
+    href="{{ path('dashboard.medic') }}"
+>
+    <i class="bi bi-clipboard fs-5" aria-hidden="true"></i>
+    Mi agenda
+</a>
+
+{% if is_granted('read_turns') %}
+    <a
+        class="nav-link d-flex align-items-center gap-2 px-4 py-3 {{ app.request.get('_route') starts with 'turns' ? 'active' }}"
+        href="{{ path('turns.index') }}"
+    >
+        <i class="bi bi-clock-history fs-5" aria-hidden="true"></i>
+        Mis turnos
+    </a>
+{% endif %}
+
+<a
+    class="nav-link d-flex align-items-center gap-2 px-4 py-3 {{ app.request.get('_route') starts with 'dashboard.medic.schedule' ? 'active' }}"
+    href="{{ path('dashboard.medic.schedule') }}"
+>
+    <i class="bi bi-calendar-week fs-5" aria-hidden="true"></i>
+    Mis horarios
+</a>

@@ -1,0 +1,100 @@
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
+{{ form_start(form, {attr: {novalidate: 'novalidate', 'data-vitalis-loading': true}}) }}
+
+<div class="card mb-4">
+    <div class="card-header d-flex align-items-center gap-3 py-3">
+        <span class="vitalis-card-icon">
+            <i class="bi {{ is_edit ? 'bi-person' : 'bi-person-plus' }}" aria-hidden="true"></i>
+        </span>
+        <h2 class="h6 mb-0">Datos de la persona</h2>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.user.firstName, {attr: {placeholder: 'Ej. Ana', maxlength: 100, autofocus: not is_edit, autocomplete: 'off'}}) }}
+            </div>
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.user.lastName, {attr: {placeholder: 'Ej. Gómez', maxlength: 100, autocomplete: 'off'}}) }}
+            </div>
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.user.dni, {attr: {placeholder: 'Sin puntos', maxlength: 8, inputmode: 'numeric', autocomplete: 'off'}}) }}
+            </div>
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.user.birthDate) }}
+            </div>
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.user.email, {attr: {placeholder: 'nombre@clinica.local', maxlength: 150, autocomplete: 'off'}}) }}
+            </div>
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.user.plainPassword, {
+                    label: is_edit ? 'Nueva contraseña' : 'Contraseña inicial',
+                    help: is_edit ? 'Dejala vacía para mantener la actual.' : 'La persona la cambia en su primer ingreso.',
+                    attr: {autocomplete: 'new-password'}
+                }) }}
+            </div>
+
+            <div class="col-12">
+                <hr class="mt-0 mb-2">
+                <p class="vitalis-hint mb-3">Datos de contacto (opcionales)</p>
+            </div>
+
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.user.phone, {attr: {placeholder: 'Ej. 1123456789', maxlength: 30, autocomplete: 'off'}}) }}
+            </div>
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.user.city, {attr: {placeholder: 'Ej. CABA', maxlength: 100, autocomplete: 'off'}}) }}
+            </div>
+            <div class="col-12">
+                {{ form_row(form.user.address, {attr: {placeholder: 'Ej. Av. Corrientes 1234', maxlength: 150, autocomplete: 'off'}}) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex align-items-center gap-3 py-3">
+        <span class="vitalis-card-icon">
+            <i class="bi bi-hospital" aria-hidden="true"></i>
+        </span>
+        <h2 class="h6 mb-0">Información médica</h2>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12 col-sm-6">
+                {% if form.user.role.vars.choices is empty %}
+                    {{ form_row(form.user.role, {
+                        help: 'No hay roles del área médica. <a href="' ~ path('roles.create') ~ '">Creá uno</a> para poder elegirlo como puesto.',
+                        help_html: true
+                    }) }}
+                {% else %}
+                    {{ form_row(form.user.role, {
+                        help: is_edit ? 'Es el rol de la persona: cambiarlo le cambia los permisos.' : 'Es el rol de la persona: define sus permisos.'
+                    }) }}
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6">
+                {% if form.speciality.vars.choices is empty %}
+                    {{ form_row(form.speciality, {
+                        help: 'No hay especialidades cargadas. <a href="' ~ path('specialities.create') ~ '">Creá una</a> para poder elegirla.',
+                        help_html: true
+                    }) }}
+                {% else %}
+                    {{ form_row(form.speciality) }}
+                {% endif %}
+            </div>
+            <div class="col-12 col-sm-6">
+                {{ form_row(form.licenseNumber, {
+                    help: 'Dejalo vacío si no tiene matrícula.',
+                    attr: {placeholder: 'Nº de registro', maxlength: 50, autocomplete: 'off'}
+                }) }}
+            </div>
+        </div>
+
+        {% include '_components/_form_actions.html.twig' with {cancel_path: path('medicals.index')} %}
+    </div>
+</div>
+
+{{ form_end(form) }}
