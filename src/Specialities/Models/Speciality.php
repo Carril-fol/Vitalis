@@ -3,9 +3,12 @@ namespace App\Specialities\Models;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'specialities')]
+#[UniqueEntity('name', message: "Ya existe una especialidad con ese nombre.")]
 class Speciality
 {
     #[ORM\Id]
@@ -14,27 +17,9 @@ class Speciality
     private ?int $id = null;
 
     #[ORM\Column(length: 50, unique: true)]
-    private string $name;
-
-    public function __construct(string $name)
-    {
-        $this->name = trim($name);
-    }
-
-    public function id(): ?int
-    {
-        return $this->id;
-    }
-
-    public function name(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = trim($name);
-    }
+    #[Assert\NotBlank(message: 'El nombre es obligatorio')]
+    #[Assert\Length(max: 50, maxMessage: 'El nombre no puede superar los {{ limit }} caracteres')]
+    private string $name = '';
 
     public function getId(): ?int
     {
@@ -46,11 +31,8 @@ class Speciality
         return $this->name;
     }
 
-    public function toArray(): array
+    public function setName(?string $name): void
     {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-        ];
+        $this->name = (string) $name;
     }
 }

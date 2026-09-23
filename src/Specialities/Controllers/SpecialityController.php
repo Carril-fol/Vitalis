@@ -2,90 +2,81 @@
 
 namespace App\Specialities\Controllers;
 
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-use App\Core\ValidationException;
+use App\Specialities\Models\Speciality;
+use App\Specialities\Forms\SpecialityType;
+use App\Specialities\Services\SpecialityService;
 
-use App\Specialities\Interfaces\ISpecialityService;
-use App\Specialities\Schemas\CreateSpecialitySchema;
-use App\Specialities\Schemas\UpdateSpecialitySchema;
-
-
-#[Route('/specialities')]
+#[Route('/specialities', name: 'specialities.')]
 class SpecialityController extends AbstractController
 {
     public function __construct(
-        private readonly ISpecialityService $specialityService,
-    ) {}
+        private readonly SpecialityService $service,
+    ) {
+    }
 
-    #[Route('', name: 'specialities.index', methods: ['GET'])]
+    private function save(Request $request, Speciality $speciality, string $template): Response
+    {
+        $isNew = $speciality->getId() === null;
+
+        $form = $this->createForm(SpecialityType::class, $speciality);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->service->save($speciality);
+
+            $this->addFlash('success', $isNew
+                ? 'Especialidad creada.'
+                : 'Los cambios de la especialidad se guardaron.');
+
+            return $this->redirectToRoute('specialities.index');
+        }
+
+        return $this->render($template, ['form' => $form]);
+    }
+
+    #[Route('', name: 'index', methods: ['GET'])]
+    #[IsGranted('read_specialities')]
     public function index(): Response
     {
         return $this->render('specialities/index.html.twig', [
-            'specialities' => $this->specialityService->findAll(),
+            'specialities' => $this->service->findAll(),
         ]);
     }
 
-    #[Route('/create', name: 'specialities.create', methods: ['GET', 'POST'])]
+    #[Route('/create', name: 'create', methods: ['GET', 'POST'])]
+    #[IsGranted('create_specialities')]
     public function create(Request $request): Response
     {
-        $schema = new CreateSpecialitySchema();
-        $errors = [];
-
-        if ($request->isMethod('POST')) {
-            $schema = CreateSpecialitySchema::fromPost($request->request->all());
-
-            try {
-                $this->specialityService->createSpeciality($schema);
-
-                return $this->redirectToRoute('specialities.index');
-            } catch (ValidationException $e) {
-                $errors = $e->errors();
-            }
-        }
-
-        return $this->render('specialities/create.html.twig', [
-            'errors' => $errors,
-            'old'    => $schema,
-        ], new Response(status: $errors ? 422 : 200));
+        return $this->save($request, new Speciality(), 'specialities/create.html.twig');
     }
 
-    #[Route('/{id}/edit', name: 'specialities.edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(Request $request, int $id): Response
+    #[Route('/{id}/edit', name: 'edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('update_specialities')]
+    public function edit(Request $request, #[MapEntity(id: 'id')] Speciality $speciality): Response
     {
-        $speciality = $this->specialityService->getSpecialityById($id);
-        $schema     = UpdateSpecialitySchema::fromPost($speciality);
-        $errors     = [];
-
-        if ($request->isMethod('POST')) {
-            $schema = UpdateSpecialitySchema::fromPost($request->request->all());
-
-            try {
-                $this->specialityService->updateSpeciality($id, $schema);
-                return $this->redirectToRoute('specialities.index');
-            } catch (ValidationException $e) {
-                $errors = $e->errors();
-            }
-        }
-
-        return $this->render('specialities/edit.html.twig', [
-            'speciality' => $speciality,
-            'errors'     => $errors,
-            'old'        => $schema,
-        ], new Response(status: $errors ? 422 : 200));
+        return $this->save($request, $speciality, 'specialities/edit.html.twig');
     }
 
-    #[Route('/{id}/delete', name: 'specialities.delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(Request $request, int $id): Response
+    #[Route('/{id}/delete', name: 'delete', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted('delete_specialities')]
+    public function delete(Request $request, #[MapEntity(id: 'id')] Speciality $speciality): Response
     {
-        if (!$this->isCsrfTokenValid('delete-speciality-' . $id, $request->request->getString('_token'))) {
+        if (!$this->isCsrfTokenValid('delete-speciality-' . $speciality->getId(), $request->request->getString('_token'))) {
             throw $this->createAccessDeniedException();
         }
 
-        $this->specialityService->deleteSpeciality($id);
+        if ($this->service->delete($speciality)) {
+            $this->addFlash('success', 'Especialidad borrada.');
+        } else {
+            $this->addFlash('error', 'No se puede borrar la especialidad, ya que hay profesionales que la tienen asignada.');
+        }
 
         return $this->redirectToRoute('specialities.index');
     }
