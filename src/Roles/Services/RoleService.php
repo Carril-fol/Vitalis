@@ -1,164 +1,37 @@
 <?php
 namespace App\Roles\Services;
 
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
-use App\Core\NotFoundException;
-use App\Core\ValidationException;
-
-use App\RolePermissions\Interfaces\IRolePermissionsService;
-use App\Users\Interfaces\IUserService;
+use Doctrine\ORM\EntityManagerInterface;
 
 use App\Roles\Models\Role;
-use App\Roles\Models\RoleArea;
-use App\Roles\Schemas\CreateRole;
-use App\Roles\Schemas\UpdateRole;
-use App\Roles\Interfaces\IRoleService;
-use App\Roles\Repositories\RoleRepository;
+use App\Users\Models\User;
 
-
-class RoleService implements IRoleService
+class RoleService
 {
-    private RoleRepository $roleRepository;
-    private IRolePermissionsService $rolePermissionsService;
-    private IUserService $userService;
-    private ValidatorInterface $validator;
-
     public function __construct(
-        RoleRepository $roleRepository,
-        IRolePermissionsService $rolePermissionsService,
-        IUserService $userService,
-        ValidatorInterface $validator
+        private readonly EntityManagerInterface $em,
     ) {
-        $this->roleRepository = $roleRepository;
-        $this->rolePermissionsService = $rolePermissionsService;
-        $this->userService = $userService;
-        $this->validator = $validator;
     }
 
-    /**
-     * Summary of assertValid
-     * @param CreateRole $schema
-     * @return void
-     */
-    private function assertValid(CreateRole $schema): void
+    public function findAll(): array
     {
-        $violations = $this->validator->validate($schema);
-
-        if (count($violations) > 0) {
-            throw ValidationException::fromViolations($violations);
-        }
+        return $this->em->getRepository(Role::class)->findBy([], ['name' => 'ASC']);
     }
 
-    /**
-     * @throws ValidationException
-     */
-    private function assertIsNameAvailable(string $name): void
+    public function save(Role $role): void
     {
-        $role = $this->roleRepository->findByName($name);
-        if ($role != null)
-            throw ValidationException::forField('name', 'Ya existe un rol con ese nombre.');
-
+        $this->em->persist($role);
+        $this->em->flush();
     }
 
-    /**
-     * Summary of getAllRoles
-     * @return array
-     */
-    public function getAllRoles(): array
+    public function delete(Role $role): bool
     {
-        return $this->roleRepository->findAll();
-    }
-
-    /**
-     * Summary of getRoleById
-     * @param int $id
-     * @throws NotFoundException
-     * @return Role
-     */
-    public function getRoleById(int $id): Role
-    {
-        $role = $this->roleRepository->find($id);
-
-        if (!$role)
-            throw new NotFoundException("Role not found");
-        return $role;
-    }
-
-    /**
-     * Summary of getRolesByArea
-     * @param RoleArea $area
-     * @return Role[]
-     */
-    public function getRolesByArea(RoleArea $area): array
-    {
-        return $this->roleRepository->findByArea($area);
-    }
-
-    /**
-     * Summary of getPermissionIds
-     * @param Role $role
-     * @return int[]
-     */
-    public function getPermissionIds(Role $role): array
-    {
-        return $this->rolePermissionsService->getPermissionIds($role);
-    }
-
-    /**
-     * Summary of createRole
-     * @param CreateRole $schema
-     * @return int|null
-     */
-    public function createRole(CreateRole $schema): int
-    {
-        $this->assertValid($schema);
-        $this->assertIsNameAvailable($schema->name);
-
-        $role = new Role($schema->name, $schema->areaValue());
-        $this->roleRepository->save($role, false);
-        $this->rolePermissionsService->syncPermissions($role, $schema->permissionIds);
-        $this->roleRepository->flush();
-
-        return $role->getId();
-    }
-
-    /**
-     * Summary of updateRole
-     * @param int $id
-     * @param UpdateRole $schema
-     * @return void
-     */
-    public function updateRole(int $id, UpdateRole $schema): void
-    {
-        $role = $this->getRoleById($id);
-        $this->assertValid($schema);
-
-        if ($schema->name != $role->name()) $this->assertIsNameAvailable($schema->name);
-
-        $role->setName($schema->name);
-        $role->setArea($schema->areaValue());
-        $this->rolePermissionsService->syncPermissions($role, $schema->permissionIds);
-        $this->roleRepository->flush();
-    }
-
-    /**
-     * Summary of deleteRole
-     * @param int $id
-     * @return bool
-     */
-    public function deleteRole(int $id): bool
-    {
-        $role = $this->roleRepository->find($id);
-        if (!$role)
+        if ($this->em->getRepository(User::class)->count(['role' => $role]) > 0) {
             return false;
-
-        $users = $this->userService->getUserByRole($role);
-        if (count($users) > 0) {
-            throw ValidationException::forField('role', 'No se puede borrar el rol, ya que hay usuarios que lo tienen asignado.');
         }
 
-        $this->roleRepository->remove($role);
+        $this->em->remove($role);
+        $this->em->flush();
         return true;
     }
 }

@@ -2,9 +2,18 @@
 namespace App\Roles\Models;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+
+use App\Permissions\Models\Permission;
+
 
 #[ORM\Entity]
 #[ORM\Table(name: 'roles')]
+#[UniqueEntity('name', message: "Ya existe un rol con ese nombre.")]
 class Role
 {
     #[ORM\Id]
@@ -13,45 +22,20 @@ class Role
     private ?int $id = null;
 
     #[ORM\Column(length: 50, unique: true)]
+    #[Assert\NotBlank(message: 'El nombre es obligatorio')]
+    #[Assert\Length(max: 50, maxMessage: 'El nombre no puede superar los {{ limit }} caracteres')]
     private string $name;
 
     #[ORM\Column(length: 30, nullable: true, enumType: RoleArea::class)]
     private ?RoleArea $area = null;
 
-    public function __construct(string $name, ?RoleArea $area = null)
-    {
-        $this->name = trim($name);
-        $this->area = $area;
-    }
+    #[ORM\ManyToMany(targetEntity: Permission::class)]
+    #[ORM\JoinTable(name: 'roles_permissions')]
+    private Collection $permissions;
 
-    public function area(): ?RoleArea
+    public function __construct()
     {
-        return $this->area;
-    }
-
-    public function belongsTo(RoleArea $area): bool
-    {
-        return $this->area === $area;
-    }
-
-    public function id(): ?int
-    {
-        return $this->id;
-    }
-
-    public function name(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = trim($name);
-    }
-
-    public function setArea(?RoleArea $area): void
-    {
-        $this->area = $area;
+        $this->permissions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -59,12 +43,29 @@ class Role
         return $this->id;
     }
 
-    public function toArray(): array
+    public function getName(): string
     {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'area' => $this->area?->value,
-        ];
+        return $this->name;
     }
-}
+
+    public function getArea(): ?RoleArea
+    {
+        return $this->area;
+    }
+
+    public function getPermissions(): Collection
+    {
+        return $this->permissions;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = (string) $name;
+    }
+
+    public function setArea(?RoleArea $area): void
+    {
+        $this->area = $area;
+    }
+
+    }
