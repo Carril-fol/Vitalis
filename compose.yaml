@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${APP_PORT:-8000}:80"
+    environment:
+      APP_SECRET: ${APP_SECRET:?definir APP_SECRET}
+      DATABASE_URL: mysql://root:${DB_ROOT_PASSWORD}@db:3306/php_mvc?serverVersion=10.11.0-MariaDB&charset=utf8mb4
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?definir DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: php_mvc
+      TZ: America/Argentina/Buenos_Aires
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  db:
