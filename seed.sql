@@ -1,6 +1,6 @@
 SET NAMES utf8mb4;
 
-SET @pass         = '$2y$13$LJl4FjRy49yycuZBrurBMuC50Mu0rAtz9IkQEyueJWsXqMmU9/9nG';
+SET @pass         = '$2y$13$9oEPJb8qYMNdEtWQj24zkueC3kT4ijNSTlocdWFSyG7.BLP0oRT32';
 SET @role_medic   = (SELECT id FROM roles WHERE area = 'MEDIC' AND name = 'Medico' LIMIT 1);
 SET @role_patient = (SELECT id FROM roles WHERE area = 'PATIENT' ORDER BY id LIMIT 1);
 SET @speciality   = (SELECT id FROM specialities ORDER BY id LIMIT 1);
