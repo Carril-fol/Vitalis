@@ -1,4 +1,3 @@
-
 SET NAMES utf8mb4;
 
 SET @pass         = '$2y$13$LJl4FjRy49yycuZBrurBMuC50Mu0rAtz9IkQEyueJWsXqMmU9/9nG';
