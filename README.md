@@ -135,6 +135,12 @@ docker compose --env-file .env.docker up --build -d
 docker compose --env-file .env.docker exec -T db mariadb -uroot -p<DB_ROOT_PASSWORD> php_mvc < seed.sql
 ```
 
+En PowerShell:
+
+```powershell
+Get-Content seed.sql -Raw | docker compose --env-file .env.docker exec -T db mariadb -uroot -p<DB_ROOT_PASSWORD> php_mvc
+```
+
 **4. Abrir** [http://localhost:8000](http://localhost:8000)
 
 <details>
