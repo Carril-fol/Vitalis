@@ -1,6 +1,21 @@
-{% set actions = {read: 'Ver', create: 'Crear', update: 'Editar', delete: 'Borrar'} %}
+{% set actions = {
+    read: 'Ver', 
+    create: 'Crear', 
+    update: 'Editar', 
+    delete: 'Borrar'
+} %}
 
-{% set moduleLabels = {administratives: 'Administrativos', medics: 'Médicos', patients: 'Pacientes', turns: 'Turnos', roles: 'Roles', specialities: 'Especialidades', '': 'Otros'} %}
+{% set moduleLabels = {
+    administratives: 'Administrativos', 
+    medics: 'Médicos', 
+    patients: 'Pacientes', 
+    turns: 'Turnos', 
+    roles: 'Roles', 
+    specialities: 'Especialidades',
+    health_insurances: 'Obras sociales',
+    consulting_rooms: 'Consultorios',
+    '': 'Otros'
+} %}
 
 <fieldset class="mt-4">
     <legend class="form-label fs-6">Permisos</legend>

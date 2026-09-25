@@ -21,7 +21,8 @@ class TurnType extends AbstractType
             ->add('patient', EntityType::class, [
                 'label' => 'Paciente',
                 'class' => Patient::class,
-                'placeholder' => 'Buscá por DNI',
+                'placeholder' => 'Buscá por DNI o apellido',
+                'autocomplete' => true,
                 'choice_label' => fn (Patient $p) => sprintf(
                     '%s — %s, %s',
                     $p->getUser()->dni(),
@@ -39,6 +40,7 @@ class TurnType extends AbstractType
                 'label' => 'Especialidad',
                 'class' => Speciality::class,
                 'placeholder' => 'Seleccione una especialidad',
+                'autocomplete' => true,
                 'choice_label' => 'name',
                 'query_builder' => fn (EntityRepository $repo) => $repo->createQueryBuilder('s')->orderBy('s.name'),
             ])

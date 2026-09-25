@@ -187,6 +187,19 @@ a:focus-visible,
     box-shadow: var(--v-ring);
 }
 
+.ts-wrapper.form-select .ts-control {
+    padding: .65rem .9rem;
+    background-color: var(--v-surface);
+    border-color: var(--v-line);
+    border-radius: var(--v-radius);
+    color: var(--v-ink);
+}
+
+.ts-wrapper.form-select.focus .ts-control {
+    border-color: var(--v-primary);
+    box-shadow: var(--v-ring);
+}
+
 .form-control.is-invalid:focus,
 .was-validated .form-control:invalid:focus {
     box-shadow: var(--v-ring-danger);
