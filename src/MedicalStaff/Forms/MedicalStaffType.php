@@ -20,7 +20,7 @@ class MedicalStaffType extends AbstractType
             ->add('user', UserType::class, [
                 'label' => false,
                 'role_area' => RoleArea::Medic,
-                'require_password' => $options['require_password'],
+                'with_password' => $options['with_password'],
             ])
             ->add('speciality', EntityType::class, [
                 'label' => 'Especialidad',
@@ -39,8 +39,8 @@ class MedicalStaffType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => MedicalStaff::class,
-            'require_password' => true,
+            'with_password' => false,
         ]);
-        $resolver->setAllowedTypes('require_password', 'bool');
+        $resolver->setAllowedTypes('with_password', 'bool');
     }
 }

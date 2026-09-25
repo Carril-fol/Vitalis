@@ -20,22 +20,11 @@ class UserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $passwordConstraints = [new Assert\Length(min: 6, minMessage: 'La contraseña necesita al menos {{ limit }} caracteres')];
-        if ($options['require_password']) {
-            $passwordConstraints[] = new Assert\NotBlank(message: 'La contraseña es obligatoria');
-        }
-
         $builder
             ->add('firstName', TextType::class, ['label' => 'Nombre'])
             ->add('lastName', TextType::class, ['label' => 'Apellido'])
             ->add('dni', TextType::class, ['label' => 'DNI'])
             ->add('email', EmailType::class, ['label' => 'Email'])
-            ->add('plainPassword', PasswordType::class, [
-                'label' => 'Contraseña',
-                'mapped' => false,
-                'required' => $options['require_password'],
-                'constraints' => $passwordConstraints,
-            ])
             ->add('birthDate', DateType::class, [
                 'label' => 'Fecha de nacimiento',
                 'widget' => 'single_text',
@@ -55,16 +44,25 @@ class UserType extends AbstractType
                     ->setParameter('area', $options['role_area']->value)
                     ->orderBy('r.name'),
             ]);
+
+        if ($options['with_password']) {
+            $builder->add('plainPassword', PasswordType::class, [
+                'label' => 'Contraseña',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [new Assert\Length(min: 6, minMessage: 'La contraseña necesita al menos {{ limit }} caracteres')],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,
-            'require_password' => true,
+            'with_password' => false,
         ]);
         $resolver->setRequired('role_area');
         $resolver->setAllowedTypes('role_area', RoleArea::class);
-        $resolver->setAllowedTypes('require_password', 'bool');
+        $resolver->setAllowedTypes('with_password', 'bool');
     }
 }

@@ -22,7 +22,7 @@ class PatientType extends AbstractType
             ->add('user', UserType::class, [
                 'label' => false,
                 'role_area' => RoleArea::Patient,
-                'require_password' => $options['require_password'],
+                'with_password' => $options['with_password'],
             ])
             ->add('healthInsurance', EntityType::class, [
                 'label' => 'Obra social',
@@ -41,8 +41,8 @@ class PatientType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Patient::class,
-            'require_password' => true,
+            'with_password' => false,
         ]);
-        $resolver->setAllowedTypes('require_password', 'bool');
+        $resolver->setAllowedTypes('with_password', 'bool');
     }
 }

@@ -5,12 +5,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 use App\Administratives\Models\Administrative;
+use App\Users\Services\InitialPasswordMailer;
 
 class AdministrativeService
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly InitialPasswordMailer $initialPasswordMailer,
     ) {
     }
 
@@ -29,13 +31,20 @@ class AdministrativeService
 
     public function save(Administrative $administrative, ?string $plainPassword): void
     {
+        $user = $administrative->getUser();
+        $isNew = $user->id() === null;
+        $plainPassword ??= $isNew ? $user->initialPassword() : null;
+
         if ($plainPassword) {
-            $user = $administrative->getUser();
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
         }
 
         $this->em->persist($administrative);
         $this->em->flush();
+
+        if ($isNew) {
+            $this->initialPasswordMailer->send($user);
+        }
     }
 
     public function changeStatus(Administrative $administrative, bool $active): void

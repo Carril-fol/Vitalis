@@ -6,12 +6,14 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 use App\MedicalStaff\Models\MedicalStaff;
 use App\Users\Models\User;
+use App\Users\Services\InitialPasswordMailer;
 
 class MedicalStaffService
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly InitialPasswordMailer $initialPasswordMailer,
     ) {
     }
 
@@ -28,13 +30,20 @@ class MedicalStaffService
 
     public function save(MedicalStaff $medicalStaff, ?string $plainPassword): void
     {
+        $user = $medicalStaff->getUser();
+        $isNew = $user->id() === null;
+        $plainPassword ??= $isNew ? $user->initialPassword() : null;
+
         if ($plainPassword) {
-            $user = $medicalStaff->getUser();
             $user->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
         }
 
         $this->em->persist($medicalStaff);
         $this->em->flush();
+
+        if ($isNew) {
+            $this->initialPasswordMailer->send($user);
+        }
     }
 
     public function changeStatus(MedicalStaff $medicalStaff, bool $active): void

@@ -95,6 +95,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->status === UserStatus::Active;
     }
 
+    public function initialPassword(): string
+    {
+        return mb_substr(mb_strtoupper(trim($this->firstName)), -3)
+            . $this->dni
+            . mb_substr(mb_strtoupper(trim($this->lastName)), -3);
+    }
+
     public function fullName(): string
     {
         return $this->firstName . ' ' . $this->lastName;

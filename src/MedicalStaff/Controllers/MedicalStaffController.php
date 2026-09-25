@@ -65,15 +65,15 @@ class MedicalStaffController extends AbstractController
         $isNew = $medicalStaff->getId() === null;
 
         $form = $this->createForm(MedicalStaffType::class, $medicalStaff, [
-            'require_password' => $isNew,
+            'with_password' => !$isNew,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->service->save($medicalStaff, $form->get('user')->get('plainPassword')->getData());
+            $this->service->save($medicalStaff, $isNew ? null : $form->get('user')->get('plainPassword')->getData());
 
             $this->addFlash('success', $isNew
-                ? 'Profesional registrado.'
+                ? 'Profesional registrado. Contraseña inicial: ' . $medicalStaff->getUser()->initialPassword()
                 : 'Los cambios del profesional se guardaron.');
 
             return $this->redirectToRoute('medicals.index');

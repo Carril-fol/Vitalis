@@ -26,15 +26,15 @@ class AdministrativeController extends AbstractController
         $isNew = $administrative->getId() === null;
 
         $form = $this->createForm(AdministrativeType::class, $administrative, [
-            'require_password' => $isNew,
+            'with_password' => !$isNew,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->service->save($administrative, $form->get('user')->get('plainPassword')->getData());
+            $this->service->save($administrative, $isNew ? null : $form->get('user')->get('plainPassword')->getData());
 
             $this->addFlash('success', $isNew
-                ? 'Administrativo registrado.'
+                ? 'Administrativo registrado. Contraseña inicial: ' . $administrative->getUser()->initialPassword()
                 : 'Los cambios del administrativo se guardaron.');
 
             return $this->redirectToRoute('administratives.index');

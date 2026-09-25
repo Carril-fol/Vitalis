@@ -19,7 +19,7 @@ class AdministrativeType extends AbstractType
             ->add('user', UserType::class, [
                 'label' => false,
                 'role_area' => RoleArea::Administrative,
-                'require_password' => $options['require_password'],
+                'with_password' => $options['with_password'],
             ])
             ->add('sector', TextType::class, [
                 'label' => 'Sector',
@@ -34,8 +34,8 @@ class AdministrativeType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Administrative::class,
-            'require_password' => true,
+            'with_password' => false,
         ]);
-        $resolver->setAllowedTypes('require_password', 'bool');
+        $resolver->setAllowedTypes('with_password', 'bool');
     }
 }

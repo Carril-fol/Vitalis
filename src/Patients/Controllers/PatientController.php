@@ -26,15 +26,15 @@ class PatientController extends AbstractController
         $isNew = $patient->getId() === null;
 
         $form = $this->createForm(PatientType::class, $patient, [
-            'require_password' => $isNew,
+            'with_password' => !$isNew,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->service->save($patient, $form->get('user')->get('plainPassword')->getData());
+            $this->service->save($patient, $isNew ? null : $form->get('user')->get('plainPassword')->getData());
 
             $this->addFlash('success', $isNew
-                ? 'Paciente registrado.'
+                ? 'Paciente registrado. Contraseña inicial: ' . $patient->getUser()->initialPassword()
                 : 'Los cambios del paciente se guardaron.');
 
             return $this->redirectToRoute('patients.index');
