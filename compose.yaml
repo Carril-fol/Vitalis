@@ -6,6 +6,7 @@ services:
     environment:
       APP_SECRET: ${APP_SECRET:?definir APP_SECRET}
       DATABASE_URL: mysql://root:${DB_ROOT_PASSWORD}@db:3306/php_mvc?serverVersion=10.11.0-MariaDB&charset=utf8mb4
+      MAILER_DSN: ${MAILER_DSN:-null://null}
     depends_on:
       db:
         condition: service_healthy

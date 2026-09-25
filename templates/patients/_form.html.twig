@@ -27,13 +27,15 @@
             <div class="col-12 col-sm-6">
                 {{ form_row(form.user.email, {attr: {placeholder: 'nombre@correo.com', maxlength: 150, autocomplete: 'off'}}) }}
             </div>
-            <div class="col-12 col-sm-6">
-                {{ form_row(form.user.plainPassword, {
-                    label: is_edit ? 'Nueva contraseña' : 'Contraseña inicial',
-                    help: is_edit ? 'Dejala vacía para mantener la actual.' : 'La persona la cambia en su primer ingreso.',
-                    attr: {autocomplete: 'new-password'}
-                }) }}
-            </div>
+            {% if is_edit %}
+                <div class="col-12 col-sm-6">
+                    {{ form_row(form.user.plainPassword, {
+                        label: 'Nueva contraseña',
+                        help: 'Dejala vacía para mantener la actual.',
+                        attr: {autocomplete: 'new-password'}
+                    }) }}
+                </div>
+            {% endif %}
 
             <div class="col-12">
                 <hr class="mt-0 mb-2">
