@@ -73,7 +73,7 @@
                                                     method="post"
                                                     class="d-inline"
                                                     action="{{ path('consulting-rooms.status', {id: room.id, status: active ? 'deactivate' : 'activate'}) }}"
-                                                    onsubmit="return confirm({{ confirmar|json_encode }});"
+                                                    data-turbo-confirm="{{ confirmar }}"
                                                 >
                                                     <input type="hidden" name="_token" value="{{ csrf_token('status-consulting-room-' ~ room.id) }}">
 

@@ -131,7 +131,7 @@
                                                     method="post"
                                                     class="d-inline"
                                                     action="{{ path('dashboard.medic.absence.delete', {id: absence.id}) }}"
-                                                    onsubmit="return confirm({{ confirmar|json_encode }});"
+                                                    data-turbo-confirm="{{ confirmar }}"
                                                 >
                                                     <input type="hidden" name="_token" value="{{ csrf_token('delete-absence-' ~ absence.id) }}">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Quitar ausencia del {{ absence.startsAt|date('d/m/Y') }}">

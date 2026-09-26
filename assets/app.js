@@ -1,5 +1,20 @@
 import './stimulus_bootstrap.js';
 import './styles/app.css';
+import * as Turbo from '@hotwired/turbo';
+
+Turbo.config.forms.confirm = (message) => new Promise((resolve) => {
+    const element = document.getElementById('confirm-modal');
+    const modal = window.bootstrap.Modal.getOrCreateInstance(element);
+    let accepted = false;
+
+    element.querySelector('[data-confirm-message]').textContent = message;
+    element.querySelector('[data-confirm-accept]').onclick = () => {
+        accepted = true;
+        modal.hide();
+    };
+    element.addEventListener('hidden.bs.modal', () => resolve(accepted), { once: true });
+    modal.show();
+});
 
 document.addEventListener('submit', (event) => {
     const button = event.submitter;

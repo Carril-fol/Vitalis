@@ -62,7 +62,7 @@
                                                     method="post"
                                                     class="d-inline"
                                                     action="{{ path('medicals.absence.delete', {id: holiday.id}) }}"
-                                                    onsubmit="return confirm({{ 'Se va a quitar este feriado.'|json_encode }});"
+                                                    data-turbo-confirm="Se va a quitar este feriado."
                                                 >
                                                     <input type="hidden" name="_token" value="{{ csrf_token('delete-absence-' ~ holiday.id) }}">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Quitar feriado del {{ holiday.startsAt|date('d/m/Y') }}">

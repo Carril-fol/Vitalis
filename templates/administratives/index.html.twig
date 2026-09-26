@@ -92,7 +92,7 @@
                                                     method="post"
                                                     class="d-inline"
                                                     action="{{ path('administratives.status', {id : administrative.id, status : active ? 'deactivate' : 'activate'}) }}"
-                                                    onsubmit="return confirm({{ confirmar|json_encode }});"
+                                                    data-turbo-confirm="{{ confirmar }}"
                                                 >
                                                     <input type="hidden" name="_token" value="{{ csrf_token('status-administrative-' ~ administrative.id) }}">
 

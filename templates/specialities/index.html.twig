@@ -63,7 +63,7 @@
                                                     method="post"
                                                     class="d-inline"
                                                     action="{{ path('specialities.delete', {id: speciality.id}) }}"
-                                                    onsubmit="return confirm({{ ('Se va a borrar la especialidad \"' ~ speciality.name ~ '\". Esta acción no se puede deshacer.')|json_encode }});"
+                                                    data-turbo-confirm="{{ 'Se va a borrar la especialidad \"' ~ speciality.name ~ '\". Esta acción no se puede deshacer.' }}"
                                                 >
                                                     <input type="hidden" name="_token" value="{{ csrf_token('delete-speciality-' ~ speciality.id) }}">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" aria-label="Borrar especialidad {{ speciality.name }}">

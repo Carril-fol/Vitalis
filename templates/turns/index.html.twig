@@ -141,7 +141,7 @@
                                                         method="post"
                                                         class="d-inline"
                                                         action="{{ path('turns.cancel', {id: turn.id, page: turns.pageNumber}) }}"
-                                                        onsubmit="return confirm({{ confirmar|json_encode }});"
+                                                        data-turbo-confirm="{{ confirmar }}"
                                                     >
                                                         <input type="hidden" name="_token" value="{{ csrf_token('cancel-turn-' ~ turn.id) }}">
 
